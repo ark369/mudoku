@@ -1,0 +1,131 @@
+:root {
+  /* Sunday Folio & Archival Cotton Stock */
+  --bg-paper: #F6F1E5;
+  --bg-paper-deep: #ECE3D0;
+  --bg-desk: #DFD6C3;
+  --bg-card: #FAF6EC;
+  --bg-elevated: #FFFDF8;
+
+  /* Recessed Oiled Walnut & Brass Token Tray */
+  --bg-tray: #433429;
+  --bg-tray-rim: #5B4738;
+  --bg-socket: #2D221A;
+  --brass-lip: #B08A4B;
+
+  /* Fountain Pen & Drafting Inks */
+  --ink-primary: #191A1F;
+  --ink-secondary: #48463F;
+  --ink-muted: #767166;
+  --wall-ink: #191A1F;
+
+  /* Editorial Semantic Inks */
+  --ink-crimson: #B43225;
+  --ink-crimson-soft: #F7E4E1;
+  --ink-slate: #29455C;
+  --ink-slate-soft: #E5ECF2;
+  --ink-brass: #9E6F21;
+  --ink-brass-soft: #F4E9D2;
+  --ink-sage: #2E6248;
+  --ink-sage-soft: #E3EFE8;
+
+  /* Compatibility aliases + Default Venue Ink */
+  --venue-ink: #2E3F66;
+  --venue-wash: #E8ECF4;
+  --accent-teal: var(--venue-ink);
+  --accent-teal-soft: var(--venue-wash);
+  --accent-brass: var(--ink-brass);
+  --accent-brass-soft: var(--ink-brass-soft);
+  --accent-coral: var(--ink-crimson);
+  --accent-coral-soft: var(--ink-crimson-soft);
+  --accent-indigo: var(--ink-slate);
+  --accent-indigo-soft: var(--ink-slate-soft);
+  --accent-gold: #A77A1D;
+
+  /* Hairlines & Book Shadows */
+  --ink-rule: rgba(25, 26, 31, 0.22);
+  --ink-rule-soft: rgba(25, 26, 31, 0.11);
+  --border-subtle: var(--ink-rule-soft);
+  --border-card: var(--ink-rule);
+
+  --shadow-sm: 0 1px 3px rgba(25, 26, 31, 0.08);
+  --shadow-md: 0 5px 16px rgba(25, 26, 31, 0.11);
+  --shadow-lg: 0 16px 38px rgba(25, 26, 31, 0.22);
+
+  /* Crisp Editorial Radii */
+  --radius-sm: 3px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --radius-pill: 999px;
+
+  /* Editorial Typography */
+  --font-display: 'Newsreader', Georgia, 'Times New Roman', serif;
+  --font-sans: 'Source Sans 3', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+}
+
+/* 8 Venue-Tuned Ink Palettes */
+[data-venue='manor'] {
+  --venue-ink: #6D2634;
+  --venue-wash: #F3E7E9;
+}
+
+[data-venue='bakery'] {
+  --venue-ink: #9E472A;
+  --venue-wash: #F5EAE3;
+}
+
+[data-venue='garden'] {
+  --venue-ink: #2C5E44;
+  --venue-wash: #E7F0EA;
+}
+
+[data-venue='library'] {
+  --venue-ink: #2E3F66;
+  --venue-wash: #E8ECF4;
+}
+
+[data-venue='museum'] {
+  --venue-ink: #3F384C;
+  --venue-wash: #ECEAF0;
+}
+
+[data-venue='inn'] {
+  --venue-ink: #245169;
+  --venue-wash: #E5EFF4;
+}
+
+[data-venue='garage'] {
+  --venue-ink: #4E4332;
+  --venue-wash: #EFEBE2;
+}
+
+[data-venue='train'] {
+  --venue-ink: #1F3654;
+  --venue-wash: #E5EBF3;
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  background-color: var(--bg-desk);
+  color: var(--ink-primary);
+  font-family: var(--font-sans);
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+}
+
+button,
+input,
+select {
+  font-family: inherit;
+}

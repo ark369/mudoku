@@ -1,0 +1,259 @@
+import React from 'react';
+import { AlertTriangle, Check, FileText, Gavel } from 'lucide-react';
+import { MYSTERY_THEMES } from '../engine/themes';
+import type { Clue, Coord, Person, Puzzle } from '../engine/types';
+import { PortraitSvg } from './PortraitSvg';
+
+interface SuspectPanelProps {
+  puzzle: Puzzle;
+  activePersonId: string | null;
+  activeClueId: string | null;
+  placements: Record<string, Coord>;
+  checkedOwners: Set<string>;
+  violatedClueIds: Set<string>;
+  hintClueIds: Set<string>;
+  readyToAccuse: boolean;
+  hintSlot?: React.ReactNode;
+  onSelectPerson: (personId: string | null) => void;
+  onSelectCaseClue: (clueId: string) => void;
+  onToggleCheckedOwner: (ownerId: string) => void;
+  onAccuseSuspect: (suspectId: string) => void;
+}
+
+export const SuspectPanel: React.FC<SuspectPanelProps> = ({
+  puzzle,
+  activePersonId,
+  activeClueId,
+  placements,
+  checkedOwners,
+  violatedClueIds,
+  hintClueIds,
+  readyToAccuse,
+  hintSlot,
+  onSelectPerson,
+  onSelectCaseClue,
+  onToggleCheckedOwner,
+  onAccuseSuspect,
+}) => {
+  const caseNotes = puzzle.clues.filter((c) => c.ownerId === 'case');
+  const cluesByPerson = new Map<string, Clue[]>();
+  for (const clue of puzzle.clues) {
+    if (clue.ownerId === 'case') continue;
+    const arr = cluesByPerson.get(clue.ownerId) ?? [];
+    arr.push(clue);
+    cluesByPerson.set(clue.ownerId, arr);
+  }
+
+  const theme = MYSTERY_THEMES.find((t) => t.id === puzzle.themeId);
+  const placedCount = Object.keys(placements).length;
+  const totalCount = puzzle.people.length;
+
+  // Identify suspects currently sharing the Victim's room (if Victim is placed)
+  const victimPos = placements[puzzle.victimId];
+  const victimRoomId = victimPos ? puzzle.grid[victimPos.r][victimPos.c].roomId : null;
+  const suspects = puzzle.people.filter((p) => !p.isVictim);
+  const roommatesWithVictim = new Set<string>();
+  if (victimRoomId !== null) {
+    for (const s of suspects) {
+      const sPos = placements[s.id];
+      if (sPos && puzzle.grid[sPos.r][sPos.c].roomId === victimRoomId) {
+        roommatesWithVictim.add(s.id);
+      }
+    }
+  }
+
+  return (
+    <aside className="suspect-column" aria-label="Case File and Clues">
+      {hintSlot}
+      <div className="suspect-scroll">
+        <div className="premise-banner">
+          <div className="premise-eyebrow">
+            <span>
+              {puzzle.caseNumber
+                ? `CASE NO. ${String(puzzle.caseNumber).padStart(2, '0')}`
+                : 'RANDOM FILE'}{' '}
+              · {theme?.name ?? 'Mystery'}
+            </span>
+            {puzzle.patternBadge && (
+              <span className="folio-pattern-stamp">{puzzle.patternBadge}</span>
+            )}
+          </div>
+          <h2 className="premise-title">{puzzle.title}</h2>
+          <p className="premise-text">{puzzle.premise}</p>
+        </div>
+
+        {caseNotes.length > 0 && (
+          <div className="case-notes-box">
+            <div className="case-notes-title">
+              <FileText size={12} /> Case Notes
+            </div>
+            {caseNotes.map((cn) => {
+              const isActive = activeClueId === cn.id;
+              const isConflict = violatedClueIds.has(cn.id);
+              return (
+                <button
+                  key={cn.id}
+                  type="button"
+                  className={`case-note-item ${isActive ? 'active' : ''} ${
+                    isConflict ? 'conflict' : ''
+                  }`}
+                  onClick={() => onSelectCaseClue(cn.id)}
+                >
+                  <span>{cn.text}</span>
+                  {isConflict && <AlertTriangle size={14} color="var(--ink-crimson)" />}
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        <div className="dossier-section-rule">
+          <span>Witness Statements</span>
+          <span>{totalCount} Persons</span>
+        </div>
+
+        <div className="suspect-list">
+          {puzzle.people.map((person: Person) => {
+            const personClues = cluesByPerson.get(person.id) ?? [];
+            const isSelected = activePersonId === person.id && !activeClueId;
+            const isChecked = checkedOwners.has(person.id);
+            const placedPos = placements[person.id];
+            const hasConflict = personClues.some((c) => violatedClueIds.has(c.id));
+            const isHinted = personClues.some((c) => hintClueIds.has(c.id));
+
+            return (
+              <div
+                key={person.id}
+                data-person-card={person.id}
+                role="button"
+                tabIndex={0}
+                style={{ ['--person-ink' as string]: person.color }}
+                className={`suspect-card ${person.isVictim ? 'victim-card' : ''} ${
+                  isSelected ? 'selected' : ''
+                } ${isChecked ? 'checked-off' : ''} ${hasConflict ? 'conflict' : ''} ${
+                  isHinted ? 'hinted' : ''
+                }`}
+                onClick={() => onSelectPerson(isSelected ? null : person.id)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    onSelectPerson(isSelected ? null : person.id);
+                  }
+                }}
+              >
+                <PortraitSvg person={person} size={50} />
+
+                <div className="suspect-card-body">
+                  <div className="suspect-card-header">
+                    <div className="suspect-name-row">
+                      <span className="suspect-name">{person.name}</span>
+                      <span className="suspect-role">{person.roleTitle}</span>
+                      {person.isVictim && <span className="victim-tag">Victim</span>}
+                      {hasConflict && (
+                        <AlertTriangle
+                          size={14}
+                          color="var(--ink-crimson)"
+                          aria-label="Clue conflict"
+                        />
+                      )}
+                    </div>
+
+                    {placedPos && (
+                      <span className="placed-pill">
+                        R{placedPos.r + 1}·C{placedPos.c + 1}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="clue-lines">
+                    {personClues.map((c) => (
+                      <span
+                        key={c.id}
+                        className={`clue-line ${isChecked ? 'checked-text' : ''}`}
+                      >
+                        {c.text}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  className={`card-check-btn ${isChecked ? 'done' : ''}`}
+                  aria-label={`Mark ${person.name}'s clue finished`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onToggleCheckedOwner(person.id);
+                  }}
+                >
+                  <Check size={14} strokeWidth={2.8} />
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Verdict Ledger */}
+      <div className={`accuse-panel ${readyToAccuse ? 'ready' : ''}`}>
+        <div className="accuse-header">
+          <span className="accuse-title">
+            <Gavel size={15} /> Accuse the Culprit
+          </span>
+          <div className="accuse-progress-group">
+            <span className="verdict-pips" aria-hidden="true">
+              {puzzle.people.map((p) => {
+                const isPlaced = Boolean(placements[p.id]);
+                return (
+                  <span
+                    key={p.id}
+                    className={`verdict-pip ${isPlaced ? 'filled' : ''}`}
+                    style={isPlaced ? { backgroundColor: p.color } : undefined}
+                  />
+                );
+              })}
+            </span>
+            <span className="accuse-progress">
+              {placedCount} / {totalCount} Placed
+            </span>
+          </div>
+        </div>
+
+        {!readyToAccuse ? (
+          <p className="accuse-sub">
+            Place all {totalCount} characters on the floor plan cleanly — then stamp the suspect
+            left alone with {puzzle.people.find((p) => p.isVictim)?.name}.
+          </p>
+        ) : (
+          <>
+            <p className="accuse-sub">
+              Everyone is placed! Select the suspect alone in the{' '}
+              <strong>
+                {victimRoomId !== null ? puzzle.rooms[victimRoomId].name : 'room'}
+              </strong>{' '}
+              with the victim:
+            </p>
+            <div className="accuse-suspects-row">
+              {suspects.map((s) => {
+                const isRoommate = roommatesWithVictim.has(s.id);
+                return (
+                  <button
+                    key={s.id}
+                    type="button"
+                    className={`accuse-chip-btn ${isRoommate ? 'candidate' : ''}`}
+                    onClick={() => onAccuseSuspect(s.id)}
+                  >
+                    <span className="accuse-chip-dot" style={{ backgroundColor: s.color }}>
+                      {s.letter}
+                    </span>
+                    <span>{s.name}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </>
+        )}
+      </div>
+    </aside>
+  );
+};
