@@ -1,7 +1,8 @@
 import React from 'react';
-import { AlertTriangle, Check, FileText, Gavel } from 'lucide-react';
+import { AlertTriangle, Check, FileText } from 'lucide-react';
 import { MYSTERY_THEMES } from '../engine/themes';
 import type { Clue, Coord, Person, Puzzle } from '../engine/types';
+import { AccusePanel } from './AccusePanel';
 import { PortraitSvg } from './PortraitSvg';
 
 interface SuspectPanelProps {
@@ -13,6 +14,8 @@ interface SuspectPanelProps {
   violatedClueIds: Set<string>;
   hintClueIds: Set<string>;
   readyToAccuse: boolean;
+  hasRowColConflict?: boolean;
+  hideCompactAccuse?: boolean;
   hintSlot?: React.ReactNode;
   onSelectPerson: (personId: string | null) => void;
   onSelectCaseClue: (clueId: string) => void;
@@ -29,6 +32,8 @@ export const SuspectPanel: React.FC<SuspectPanelProps> = ({
   violatedClueIds,
   hintClueIds,
   readyToAccuse,
+  hasRowColConflict = false,
+  hideCompactAccuse = false,
   hintSlot,
   onSelectPerson,
   onSelectCaseClue,
@@ -45,25 +50,13 @@ export const SuspectPanel: React.FC<SuspectPanelProps> = ({
   }
 
   const theme = MYSTERY_THEMES.find((t) => t.id === puzzle.themeId);
-  const placedCount = Object.keys(placements).length;
   const totalCount = puzzle.people.length;
 
-  // Identify suspects currently sharing the Victim's room (if Victim is placed)
-  const victimPos = placements[puzzle.victimId];
-  const victimRoomId = victimPos ? puzzle.grid[victimPos.r][victimPos.c].roomId : null;
-  const suspects = puzzle.people.filter((p) => !p.isVictim);
-  const roommatesWithVictim = new Set<string>();
-  if (victimRoomId !== null) {
-    for (const s of suspects) {
-      const sPos = placements[s.id];
-      if (sPos && puzzle.grid[sPos.r][sPos.c].roomId === victimRoomId) {
-        roommatesWithVictim.add(s.id);
-      }
-    }
-  }
-
   return (
-    <aside className="suspect-column" aria-label="Case File and Clues">
+    <aside
+      className={`suspect-column ${hideCompactAccuse ? 'hide-compact-accuse' : ''}`}
+      aria-label="Case File and Clues"
+    >
       {hintSlot}
       <div className="suspect-scroll">
         <div className="premise-banner">
@@ -195,65 +188,13 @@ export const SuspectPanel: React.FC<SuspectPanelProps> = ({
       </div>
 
       {/* Verdict Ledger */}
-      <div className={`accuse-panel ${readyToAccuse ? 'ready' : ''}`}>
-        <div className="accuse-header">
-          <span className="accuse-title">
-            <Gavel size={15} /> Accuse the Culprit
-          </span>
-          <div className="accuse-progress-group">
-            <span className="verdict-pips" aria-hidden="true">
-              {puzzle.people.map((p) => {
-                const isPlaced = Boolean(placements[p.id]);
-                return (
-                  <span
-                    key={p.id}
-                    className={`verdict-pip ${isPlaced ? 'filled' : ''}`}
-                    style={isPlaced ? { backgroundColor: p.color } : undefined}
-                  />
-                );
-              })}
-            </span>
-            <span className="accuse-progress">
-              {placedCount} / {totalCount} Placed
-            </span>
-          </div>
-        </div>
-
-        {!readyToAccuse ? (
-          <p className="accuse-sub">
-            Place all {totalCount} characters on the floor plan cleanly — then stamp the suspect
-            left alone with {puzzle.people.find((p) => p.isVictim)?.name}.
-          </p>
-        ) : (
-          <>
-            <p className="accuse-sub">
-              Everyone is placed! Select the suspect alone in the{' '}
-              <strong>
-                {victimRoomId !== null ? puzzle.rooms[victimRoomId].name : 'room'}
-              </strong>{' '}
-              with the victim:
-            </p>
-            <div className="accuse-suspects-row">
-              {suspects.map((s) => {
-                const isRoommate = roommatesWithVictim.has(s.id);
-                return (
-                  <button
-                    key={s.id}
-                    type="button"
-                    className={`accuse-chip-btn ${isRoommate ? 'candidate' : ''}`}
-                    onClick={() => onAccuseSuspect(s.id)}
-                  >
-                    <span className="accuse-chip-dot" style={{ backgroundColor: s.color }}>
-                      {s.letter}
-                    </span>
-                    <span>{s.name}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </>
-        )}
-      </div>
+      <AccusePanel
+        puzzle={puzzle}
+        placements={placements}
+        readyToAccuse={readyToAccuse}
+        hasRowColConflict={hasRowColConflict}
+        onAccuseSuspect={onAccuseSuspect}
+      />
     </aside>
   );
 };

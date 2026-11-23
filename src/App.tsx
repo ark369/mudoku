@@ -7,6 +7,7 @@ import { checkPlayerPlacements, getNextHint, type LiveHint } from './engine/solv
 import { OBJECT_INFO } from './engine/themes';
 import type { Coord, Difficulty, ObjectKind, Puzzle } from './engine/types';
 import { ActionDock, type InputMode } from './components/ActionDock';
+import { AccusePanel } from './components/AccusePanel';
 import { CrimeSceneBoard } from './components/CrimeSceneBoard';
 import { HeaderBar } from './components/HeaderBar';
 import { HintDrawer } from './components/HintDrawer';
@@ -657,6 +658,9 @@ export const App: React.FC = () => {
 
   const hintHighlightCells = liveHint?.step?.highlightCells ?? [];
   const hintClueIds = new Set(liveHint?.step?.involvedClueIds ?? []);
+  const allPlaced = Object.keys(placements).length === puzzle.people.length;
+  const hasRowColConflict = rowColConflicts.length > 0;
+  const showCompactVerdict = readyToAccuse || (allPlaced && hasRowColConflict);
 
   const toggleCheckedOwner = (ownerId: string) => {
     setCheckedOwners((prev) => {
@@ -837,67 +841,87 @@ export const App: React.FC = () => {
 
             {hintDrawerNode && <div className="mobile-hint-slot">{hintDrawerNode}</div>}
 
-            {activePerson ? (
-              <div
-                className={`mobile-clue-bar ${
-                  activePersonClues.some((c) => violatedClueIds.has(c.id)) ? 'conflict' : ''
-                } ${checkedOwners.has(activePerson.id) ? 'checked-off' : ''}`}
-                style={{ ['--person-ink' as string]: activePerson.color }}
-                aria-live="polite"
-              >
-                <span
-                  className="mobile-clue-pip"
-                  style={{ backgroundColor: activePerson.color }}
-                  aria-hidden="true"
-                >
-                  {activePerson.letter}
-                </span>
-                <div className="mobile-clue-body">
-                  <div className="mobile-clue-head">
-                    <span className="suspect-name">{activePerson.name}</span>
-                    <span className="suspect-role">{activePerson.roleTitle}</span>
-                    {activePerson.isVictim && <span className="victim-tag">Victim</span>}
-                    {placements[activePerson.id] && (
-                      <span className="placed-pill">
-                        R{placements[activePerson.id].r + 1}·C{placements[activePerson.id].c + 1}
-                      </span>
-                    )}
-                  </div>
-                  <div className="mobile-clue-lines">
-                    {activePersonClues.map((c) => (
-                      <span
-                        key={c.id}
-                        className={`clue-line ${
-                          checkedOwners.has(activePerson.id) ? 'checked-text' : ''
-                        }`}
-                      >
-                        {c.text}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  className={`card-check-btn ${checkedOwners.has(activePerson.id) ? 'done' : ''}`}
-                  aria-label={`Mark ${activePerson.name}'s clue finished`}
-                  onClick={() => toggleCheckedOwner(activePerson.id)}
-                >
-                  <Check size={14} strokeWidth={2.8} />
-                </button>
+            {showCompactVerdict && (
+              <div className="compact-verdict-slot">
+                <AccusePanel
+                  puzzle={puzzle}
+                  placements={placements}
+                  readyToAccuse={readyToAccuse}
+                  hasRowColConflict={hasRowColConflict}
+                  onAccuseSuspect={handleAccuseSuspect}
+                  compact
+                />
               </div>
-            ) : activeCaseNote ? (
-              <div className="mobile-clue-bar case-note" aria-live="polite">
-                <div className="mobile-clue-body">
-                  <div className="mobile-clue-kicker">CASE NOTE</div>
-                  <div className="mobile-clue-lines">
-                    <span className="clue-line">{activeCaseNote.text}</span>
+            )}
+
+            {!showCompactVerdict && (
+              <>
+                {activePerson ? (
+                  <div
+                    className={`mobile-clue-bar ${
+                      activePersonClues.some((c) => violatedClueIds.has(c.id)) ? 'conflict' : ''
+                    } ${checkedOwners.has(activePerson.id) ? 'checked-off' : ''}`}
+                    style={{ ['--person-ink' as string]: activePerson.color }}
+                    aria-live="polite"
+                  >
+                    <span
+                      className="mobile-clue-pip"
+                      style={{ backgroundColor: activePerson.color }}
+                      aria-hidden="true"
+                    >
+                      {activePerson.letter}
+                    </span>
+                    <div className="mobile-clue-body">
+                      <div className="mobile-clue-head">
+                        <span className="suspect-name">{activePerson.name}</span>
+                        <span className="suspect-role">{activePerson.roleTitle}</span>
+                        {activePerson.isVictim && <span className="victim-tag">Victim</span>}
+                        {placements[activePerson.id] && (
+                          <span className="placed-pill">
+                            R{placements[activePerson.id].r + 1}·C
+                            {placements[activePerson.id].c + 1}
+                          </span>
+                        )}
+                      </div>
+                      <div className="mobile-clue-lines">
+                        {activePersonClues.map((c) => (
+                          <span
+                            key={c.id}
+                            className={`clue-line ${
+                              checkedOwners.has(activePerson.id) ? 'checked-text' : ''
+                            }`}
+                          >
+                            {c.text}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      className={`card-check-btn ${
+                        checkedOwners.has(activePerson.id) ? 'done' : ''
+                      }`}
+                      aria-label={`Mark ${activePerson.name}'s clue finished`}
+                      onClick={() => toggleCheckedOwner(activePerson.id)}
+                    >
+                      <Check size={14} strokeWidth={2.8} />
+                    </button>
                   </div>
-                </div>
-              </div>
-            ) : (
-              <div className="mobile-clue-bar empty" aria-live="polite">
-                <span>Tap any pawn above to read their clue</span>
-              </div>
+                ) : activeCaseNote ? (
+                  <div className="mobile-clue-bar case-note" aria-live="polite">
+                    <div className="mobile-clue-body">
+                      <div className="mobile-clue-kicker">CASE NOTE</div>
+                      <div className="mobile-clue-lines">
+                        <span className="clue-line">{activeCaseNote.text}</span>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="mobile-clue-bar empty" aria-live="polite">
+                    <span>Tap any pawn above to read their clue</span>
+                  </div>
+                )}
+              </>
             )}
 
             <ActionDock
@@ -921,6 +945,8 @@ export const App: React.FC = () => {
             violatedClueIds={violatedClueIds}
             hintClueIds={hintClueIds}
             readyToAccuse={readyToAccuse}
+            hasRowColConflict={hasRowColConflict}
+            hideCompactAccuse={showCompactVerdict}
             hintSlot={hintDrawerNode}
             onSelectPerson={(pid) => {
               setActivePersonId(pid);

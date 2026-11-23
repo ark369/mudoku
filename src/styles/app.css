@@ -1846,7 +1846,8 @@
   transition: all 0.2s ease;
 }
 
-.accuse-panel.ready {
+.accuse-panel.ready,
+.accuse-panel.conflict-warning {
   border-top-color: var(--ink-crimson);
   border-left: 3px solid var(--ink-crimson);
   background: #fbf1ef;
@@ -2627,6 +2628,13 @@
   margin-top: 3px;
 }
 
+/* Inline Clue Bar, Hint Slot & Compact Verdict (hidden on Desktop/Landscape) */
+.mobile-clue-bar,
+.mobile-hint-slot,
+.compact-verdict-slot {
+  display: none;
+}
+
 /* Compact iPad Landscape / Narrow Laptop Tweaks */
 @media (max-width: 1120px) and (min-width: 901px) {
   .header-bar {
@@ -2734,12 +2742,25 @@
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     column-gap: 14px;
   }
-}
 
-/* Inline Clue Bar & Hint Slot (Phone-only) */
-.mobile-clue-bar,
-.mobile-hint-slot {
-  display: none;
+  .compact-verdict-slot {
+    display: block;
+    width: 100%;
+    max-width: 560px;
+    animation: tokenPop 0.18s ease-out;
+  }
+
+  .compact-verdict-slot .accuse-panel {
+    border: 1.5px solid var(--ink-crimson);
+    border-left: 4px solid var(--ink-crimson);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-md);
+    padding: 9px 11px;
+  }
+
+  .suspect-column.hide-compact-accuse .accuse-panel {
+    display: none;
+  }
 }
 
 @media (max-width: 680px) {
@@ -2753,6 +2774,17 @@
     display: block;
     width: 100%;
     max-width: 560px;
+  }
+
+  .compact-verdict-slot .accuse-chip-btn {
+    min-height: 38px;
+  }
+
+  .board-toast {
+    white-space: normal;
+    text-align: center;
+    line-height: 1.3;
+    padding: 8px 12px;
   }
 
   .suspect-column > .hint-banner {
