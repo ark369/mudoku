@@ -844,13 +844,22 @@ export const CrimeSceneBoard: React.FC<CrimeSceneBoardProps> = ({
                       <div className="notes-mini-grid" aria-hidden="true">
                         {people.slice(0, 9).map((p) => {
                           const hasNote = cellNotes.includes(p.id);
+                          const isActiveNote = hasNote && activePersonId === p.id;
+                          const isDimmedNote =
+                            hasNote && activePersonId !== null && activePersonId !== p.id;
                           return (
                             <span
                               key={p.id}
-                              className="note-chip"
-                              style={{ color: hasNote ? p.color : 'transparent' }}
+                              className={`note-chip${isActiveNote ? ' is-active' : ''}${
+                                isDimmedNote ? ' is-dimmed' : ''
+                              }`}
+                              style={
+                                hasNote
+                                  ? ({ '--note-color': p.color } as React.CSSProperties)
+                                  : undefined
+                              }
                             >
-                              {hasNote ? p.letter : ''}
+                              {hasNote ? <span className="note-chip-glyph">{p.letter}</span> : ''}
                             </span>
                           );
                         })}

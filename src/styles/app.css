@@ -1080,7 +1080,7 @@
 /* Pencil Margin Notes inside a Cell */
 .notes-mini-grid {
   position: absolute;
-  inset: 4px;
+  inset: 3px;
   z-index: 5;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -1096,10 +1096,53 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+}
+
+.note-chip-glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.35em;
+  height: 1.35em;
+  padding: 0 1px;
+  border-radius: 3px;
+  color: var(--note-color, transparent);
   font-family: var(--font-mono);
   font-size: clamp(0.48rem, 1.05vw, 0.66rem);
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1;
+  text-shadow: 0 0 2px rgba(255, 253, 248, 0.7);
+  transition:
+    transform 0.14s ease,
+    background-color 0.14s ease,
+    color 0.14s ease,
+    opacity 0.14s ease,
+    box-shadow 0.14s ease;
+}
+
+.note-chip.is-dimmed .note-chip-glyph {
+  font-weight: 500;
+  opacity: 0.52;
+}
+
+.note-chip.is-active {
+  z-index: 2;
+}
+
+.note-chip.is-active .note-chip-glyph {
+  background-color: var(--note-color);
+  color: #fffdf8;
+  font-weight: 700;
+  min-width: 1.48em;
+  height: 1.48em;
+  padding: 0 2px;
+  border-radius: 3.5px;
+  text-shadow: 0 0.5px 1px rgba(0, 0, 0, 0.28);
+  box-shadow:
+    0 0 0 1.25px rgba(255, 253, 248, 0.94),
+    0 1px 3px rgba(25, 26, 31, 0.34);
+  transform: scale(1.14);
 }
 
 /* Recessed Walnut & Brass Tabletop Token Tray */
@@ -2912,6 +2955,10 @@
   .room-label {
     font-size: 0.5rem;
     padding: 0.5px 3px;
+  }
+
+  .notes-mini-grid {
+    inset: 2px;
   }
 
   .token-tray {
