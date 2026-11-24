@@ -1,4 +1,5 @@
 import { computeClueHighlights, formatClueText } from './predicates';
+import { diversifyCuratedPeople } from './themes';
 import type {
   BlockingKind,
   Cell,
@@ -11347,9 +11348,11 @@ export function getCuratedPuzzle(caseId: string): Puzzle | null {
     cells: roomCellsMap.get(rm.id) ?? [],
   }));
 
+  const people = diversifyCuratedPeople(spec.people, spec.id);
+
   const clues: Clue[] = spec.clues.map((draft) => ({
     ...draft,
-    text: formatClueText(draft, rooms, spec.people),
+    text: formatClueText(draft, rooms, people),
     highlights: computeClueHighlights(draft, grid),
   })) as Clue[];
 
@@ -11367,7 +11370,7 @@ export function getCuratedPuzzle(caseId: string): Puzzle | null {
     patternBadge: spec.patternBadge,
     rooms,
     grid,
-    people: spec.people.map((p) => ({ ...p })),
+    people,
     victimId: spec.victimId,
     killerId: spec.killerId,
     clues,

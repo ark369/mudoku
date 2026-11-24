@@ -588,72 +588,258 @@ export const MYSTERY_THEMES: MysteryTheme[] = [
 interface CharacterTemplate {
   letter: string;
   names: { name: string; gender: 'M' | 'F'; role: string }[];
-  color: string;
 }
+
+const SUSPECT_COLORS = [
+  '#D64550',
+  '#2B7A78',
+  '#D97706',
+  '#3B66B0',
+  '#8B4593',
+  '#2F855A',
+  '#C05621',
+  '#4C51BF',
+];
 
 const SUSPECT_ROSTER: CharacterTemplate[] = [
   {
     letter: 'A',
-    color: '#D64550',
     names: [
       { name: 'Alice', gender: 'F', role: 'Botanist' },
       { name: 'Arthur', gender: 'M', role: 'Clockmaker' },
+      { name: 'Amara', gender: 'F', role: 'Archivist' },
+      { name: 'Antonio', gender: 'M', role: 'Chocolatier' },
+      { name: 'Astrid', gender: 'F', role: 'Violinist' },
     ],
   },
   {
     letter: 'B',
-    color: '#2B7A78',
     names: [
       { name: 'Barnaby', gender: 'M', role: 'Chef' },
       { name: 'Beatrice', gender: 'F', role: 'Violinist' },
+      { name: 'Bruno', gender: 'M', role: 'Watchmaker' },
+      { name: 'Bianca', gender: 'F', role: 'Florist' },
+      { name: 'Beckett', gender: 'M', role: 'Sailor' },
     ],
   },
   {
     letter: 'C',
-    color: '#D97706',
     names: [
       { name: 'Clara', gender: 'F', role: 'Painter' },
       { name: 'Cedric', gender: 'M', role: 'Librarian' },
+      { name: 'Camille', gender: 'F', role: 'Ceramicist' },
+      { name: 'Carlos', gender: 'M', role: 'Astronomer' },
+      { name: 'Cora', gender: 'F', role: 'Tea Blender' },
     ],
   },
   {
     letter: 'D',
-    color: '#3B66B0',
     names: [
       { name: 'Dante', gender: 'M', role: 'Architect' },
       { name: 'Daisy', gender: 'F', role: 'Florist' },
+      { name: 'Desmond', gender: 'M', role: 'Magician' },
+      { name: 'Daphne', gender: 'F', role: 'Sculptor' },
+      { name: 'Devon', gender: 'M', role: 'Cartographer' },
     ],
   },
   {
     letter: 'E',
-    color: '#8B4593',
     names: [
       { name: 'Evelyn', gender: 'F', role: 'Historian' },
       { name: 'Emilio', gender: 'M', role: 'Mechanic' },
+      { name: 'Esme', gender: 'F', role: 'Jeweler' },
+      { name: 'Edgar', gender: 'M', role: 'Novelist' },
+      { name: 'Elena', gender: 'F', role: 'Botanist' },
     ],
   },
   {
     letter: 'F',
-    color: '#2F855A',
     names: [
       { name: 'Felix', gender: 'M', role: 'Journalist' },
       { name: 'Fiona', gender: 'F', role: 'Sculptor' },
+      { name: 'Freya', gender: 'F', role: 'Navigator' },
+      { name: 'Franco', gender: 'M', role: 'Pastry Chef' },
+      { name: 'Flora', gender: 'F', role: 'Tailor' },
     ],
   },
   {
     letter: 'G',
-    color: '#C05621',
     names: [
       { name: 'Grace', gender: 'F', role: 'Astronomer' },
       { name: 'Gideon', gender: 'M', role: 'Captain' },
+      { name: 'Greta', gender: 'F', role: 'Curator' },
+      { name: 'Gabriel', gender: 'M', role: 'Cellist' },
+      { name: 'Gemma', gender: 'F', role: 'Glassblower' },
     ],
   },
   {
     letter: 'H',
-    color: '#4C51BF',
     names: [
       { name: 'Hugo', gender: 'M', role: 'Pianist' },
       { name: 'Hazel', gender: 'F', role: 'Baker' },
+      { name: 'Hector', gender: 'M', role: 'Inventor' },
+      { name: 'Hannah', gender: 'F', role: 'Beekeeper' },
+      { name: 'Harvey', gender: 'M', role: 'Antiquarian' },
+    ],
+  },
+  {
+    letter: 'I',
+    names: [
+      { name: 'Iris', gender: 'F', role: 'Painter' },
+      { name: 'Isaac', gender: 'M', role: 'Clockmaker' },
+      { name: 'Imogen', gender: 'F', role: 'Playwright' },
+      { name: 'Ivan', gender: 'M', role: 'Geologist' },
+      { name: 'Isla', gender: 'F', role: 'Herbalist' },
+    ],
+  },
+  {
+    letter: 'J',
+    names: [
+      { name: 'Jasper', gender: 'M', role: 'Jeweler' },
+      { name: 'June', gender: 'F', role: 'Librarian' },
+      { name: 'Julian', gender: 'M', role: 'Conductor' },
+      { name: 'Josephine', gender: 'F', role: 'Architect' },
+      { name: 'Jonah', gender: 'M', role: 'Harbor Pilot' },
+    ],
+  },
+  {
+    letter: 'K',
+    names: [
+      { name: 'Klara', gender: 'F', role: 'Dancer' },
+      { name: 'Kai', gender: 'M', role: 'Botanist' },
+      { name: 'Keiko', gender: 'F', role: 'Calligrapher' },
+      { name: 'Kenneth', gender: 'M', role: 'Historian' },
+      { name: 'Kira', gender: 'F', role: 'Acrobat' },
+    ],
+  },
+  {
+    letter: 'L',
+    names: [
+      { name: 'Leo', gender: 'M', role: 'Photographer' },
+      { name: 'Lydia', gender: 'F', role: 'Violinist' },
+      { name: 'Lorenzo', gender: 'M', role: 'Sculptor' },
+      { name: 'Linnea', gender: 'F', role: 'Florist' },
+      { name: 'Lucas', gender: 'M', role: 'Bookbinder' },
+    ],
+  },
+  {
+    letter: 'M',
+    names: [
+      { name: 'Margot', gender: 'F', role: 'Milliner' },
+      { name: 'Mateo', gender: 'M', role: 'Baker' },
+      { name: 'Miriam', gender: 'F', role: 'Astronomer' },
+      { name: 'Miles', gender: 'M', role: 'Explorer' },
+      { name: 'Mei', gender: 'F', role: 'Tea Master' },
+    ],
+  },
+  {
+    letter: 'N',
+    names: [
+      { name: 'Nora', gender: 'F', role: 'Ceramicist' },
+      { name: 'Nigel', gender: 'M', role: 'Professor' },
+      { name: 'Nadia', gender: 'F', role: 'Composer' },
+      { name: 'Nathan', gender: 'M', role: 'Carpenter' },
+      { name: 'Naomi', gender: 'F', role: 'Illustrator' },
+    ],
+  },
+  {
+    letter: 'O',
+    names: [
+      { name: 'Oliver', gender: 'M', role: 'Watchmaker' },
+      { name: 'Olive', gender: 'F', role: 'Gardener' },
+      { name: 'Oscar', gender: 'M', role: 'Playwright' },
+      { name: 'Opal', gender: 'F', role: 'Gemologist' },
+      { name: 'Owen', gender: 'M', role: 'Keeper' },
+    ],
+  },
+  {
+    letter: 'P',
+    names: [
+      { name: 'Penelope', gender: 'F', role: 'Botanist' },
+      { name: 'Percy', gender: 'M', role: 'Butler' },
+      { name: 'Priya', gender: 'F', role: 'Architect' },
+      { name: 'Pietro', gender: 'M', role: 'Chef' },
+      { name: 'Phoebe', gender: 'F', role: 'Poet' },
+    ],
+  },
+  {
+    letter: 'Q',
+    names: [
+      { name: 'Quinn', gender: 'F', role: 'Journalist' },
+      { name: 'Quentin', gender: 'M', role: 'Collector' },
+      { name: 'Queenie', gender: 'F', role: 'Singer' },
+    ],
+  },
+  {
+    letter: 'R',
+    names: [
+      { name: 'Ruby', gender: 'F', role: 'Jeweler' },
+      { name: 'Rafael', gender: 'M', role: 'Painter' },
+      { name: 'Rosalind', gender: 'F', role: 'Chemist' },
+      { name: 'Rupert', gender: 'M', role: 'Antiquarian' },
+      { name: 'Rowan', gender: 'M', role: 'Forester' },
+    ],
+  },
+  {
+    letter: 'S',
+    names: [
+      { name: 'Simon', gender: 'M', role: 'Violinist' },
+      { name: 'Sylvia', gender: 'F', role: 'Curator' },
+      { name: 'Soren', gender: 'M', role: 'Sailor' },
+      { name: 'Sofia', gender: 'F', role: 'Pastry Chef' },
+      { name: 'Stella', gender: 'F', role: 'Stargazer' },
+    ],
+  },
+  {
+    letter: 'T',
+    names: [
+      { name: 'Theo', gender: 'M', role: 'Inventor' },
+      { name: 'Tessa', gender: 'F', role: 'Florist' },
+      { name: 'Tobias', gender: 'M', role: 'Librarian' },
+      { name: 'Talia', gender: 'F', role: 'Sculptor' },
+      { name: 'Tristan', gender: 'M', role: 'Conductor' },
+    ],
+  },
+  {
+    letter: 'U',
+    names: [
+      { name: 'Uma', gender: 'F', role: 'Historian' },
+      { name: 'Ulysses', gender: 'M', role: 'Explorer' },
+      { name: 'Ursula', gender: 'F', role: 'Seamstress' },
+    ],
+  },
+  {
+    letter: 'W',
+    names: [
+      { name: 'Walter', gender: 'M', role: 'Clockmaker' },
+      { name: 'Wendy', gender: 'F', role: 'Baker' },
+      { name: 'Winston', gender: 'M', role: 'Curator' },
+      { name: 'Willow', gender: 'F', role: 'Herbalist' },
+      { name: 'Wesley', gender: 'M', role: 'Mechanic' },
+    ],
+  },
+  {
+    letter: 'X',
+    names: [
+      { name: 'Xavier', gender: 'M', role: 'Magician' },
+      { name: 'Ximena', gender: 'F', role: 'Painter' },
+    ],
+  },
+  {
+    letter: 'Y',
+    names: [
+      { name: 'Yasmin', gender: 'F', role: 'Perfumer' },
+      { name: 'Yusef', gender: 'M', role: 'Cartographer' },
+      { name: 'Yuki', gender: 'F', role: 'Ceramicist' },
+    ],
+  },
+  {
+    letter: 'Z',
+    names: [
+      { name: 'Zara', gender: 'F', role: 'Acrobat' },
+      { name: 'Zachary', gender: 'M', role: 'Archivist' },
+      { name: 'Zelda', gender: 'F', role: 'Novelist' },
+      { name: 'Zander', gender: 'M', role: 'Glassblower' },
     ],
   },
 ];
@@ -663,7 +849,23 @@ const VICTIM_POOL: { name: string; gender: 'M' | 'F'; role: string }[] = [
   { name: 'Vivian', gender: 'F', role: 'Curator' },
   { name: 'Vincent', gender: 'M', role: 'Collector' },
   { name: 'Valerie', gender: 'F', role: 'Patron' },
+  { name: 'Vera', gender: 'F', role: 'Heiress' },
+  { name: 'Vaughn', gender: 'M', role: 'Baron' },
+  { name: 'Violet', gender: 'F', role: 'Countess' },
+  { name: 'Vance', gender: 'M', role: 'Maestro' },
+  { name: 'Veronica', gender: 'F', role: 'Benefactor' },
+  { name: 'Vernon', gender: 'M', role: 'Mayor' },
+  { name: 'Vanessa', gender: 'F', role: 'Director' },
+  { name: 'Vito', gender: 'M', role: 'Impresario' },
 ];
+
+function portraitIdForName(name: string, gender: 'M' | 'F', offset = 0): number {
+  let hash = offset * 17;
+  for (let i = 0; i < name.length; i++) {
+    hash = (hash * 31 + name.charCodeAt(i)) % 997;
+  }
+  return hash * 2 + (gender === 'F' ? 1 : 0);
+}
 
 export function pickTheme(themeId: string | undefined, rng: SeededRNG): MysteryTheme {
   if (themeId && themeId !== 'random') {
@@ -675,7 +877,11 @@ export function pickTheme(themeId: string | undefined, rng: SeededRNG): MysteryT
 
 export function buildPeopleRoster(size: number, rng: SeededRNG): { people: Person[]; victimId: string } {
   const suspectCount = size - 1;
-  const templates = SUSPECT_ROSTER.slice(0, suspectCount);
+  const templates = rng
+    .shuffle(SUSPECT_ROSTER)
+    .slice(0, suspectCount)
+    .sort((a, b) => a.letter.localeCompare(b.letter));
+
   const people: Person[] = templates.map((tpl, idx) => {
     const chosen = rng.pick(tpl.names);
     return {
@@ -684,8 +890,8 @@ export function buildPeopleRoster(size: number, rng: SeededRNG): { people: Perso
       name: chosen.name,
       gender: chosen.gender,
       isVictim: false,
-      color: tpl.color,
-      portraitId: idx * 2 + (chosen.gender === 'F' ? 1 : 0),
+      color: SUSPECT_COLORS[idx % SUSPECT_COLORS.length],
+      portraitId: portraitIdForName(chosen.name, chosen.gender, idx),
       roleTitle: chosen.role,
     };
   });
@@ -704,6 +910,42 @@ export function buildPeopleRoster(size: number, rng: SeededRNG): { people: Perso
   people.push(victim);
 
   return { people, victimId: 'V' };
+}
+
+/**
+ * Assigns a deterministic, alphabet-wide diverse cast of names and initials
+ * to a curated case while preserving each person's internal ID, color, and themed role.
+ */
+export function diversifyCuratedPeople(basePeople: readonly Person[], caseId: string): Person[] {
+  const rng = new SeededRNG(`${caseId}::DIVERSE_CAST_V1`);
+  const suspects = basePeople.filter((p) => !p.isVictim);
+  const templates = rng
+    .shuffle(SUSPECT_ROSTER)
+    .slice(0, suspects.length)
+    .sort((a, b) => a.letter.localeCompare(b.letter));
+
+  let suspectIdx = 0;
+  return basePeople.map((p) => {
+    if (p.isVictim) {
+      const victimChoice = rng.pick(VICTIM_POOL);
+      return {
+        ...p,
+        letter: 'V',
+        name: victimChoice.name,
+        gender: victimChoice.gender,
+        portraitId: 20 + VICTIM_POOL.indexOf(victimChoice),
+      };
+    }
+    const tpl = templates[suspectIdx++];
+    const chosen = rng.pick(tpl.names);
+    return {
+      ...p,
+      letter: tpl.letter,
+      name: chosen.name,
+      gender: chosen.gender,
+      portraitId: portraitIdForName(chosen.name, chosen.gender, suspectIdx),
+    };
+  });
 }
 
 export function pronounFor(person: Person): { subj: string; obj: string; poss: string } {

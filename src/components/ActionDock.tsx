@@ -105,25 +105,23 @@ export const ActionDock: React.FC<ActionDockProps> = ({
       <div className="utility-group">
         <button
           type="button"
-          className="dock-btn icon-square undo-redo-btn"
+          className="dock-btn icon-square"
           onClick={onUndo}
           disabled={!canUndo}
           aria-label="Undo"
           title="Undo"
         >
           <Undo2 size={15} />
-          <span className="mobile-btn-label">Undo</span>
         </button>
         <button
           type="button"
-          className="dock-btn icon-square undo-redo-btn"
+          className="dock-btn icon-square"
           onClick={onRedo}
           disabled={!canRedo}
           aria-label="Redo"
           title="Redo"
         >
           <Redo2 size={15} />
-          <span className="mobile-btn-label">Redo</span>
         </button>
 
         <div className="assist-menu-wrap" ref={menuWrapRef}>

@@ -1471,10 +1471,6 @@
   cursor: default;
 }
 
-.mobile-btn-label {
-  display: none;
-}
-
 .assist-menu-wrap {
   position: relative;
 }
@@ -2855,8 +2851,9 @@
   .app-shell {
     height: auto;
     min-height: 100dvh;
-    overflow-x: hidden;
+    overflow-x: clip;
     overflow-y: visible;
+    padding-bottom: max(18px, env(safe-area-inset-bottom));
   }
 
   .header-bar {
@@ -2912,7 +2909,7 @@
     border-left: none;
     border-top: 1.5px solid var(--ink-primary);
     background: none;
-    padding: 12px 14px 18px;
+    padding: 12px 14px max(28px, calc(18px + env(safe-area-inset-bottom)));
   }
 
   .suspect-scroll {
@@ -2937,7 +2934,7 @@
     border-left: 4px solid var(--ink-crimson);
     border-radius: var(--radius-sm);
     box-shadow: var(--shadow-md);
-    padding: 9px 11px;
+    padding: 8px 10px;
   }
 
   .suspect-column.hide-compact-accuse .accuse-panel {
@@ -2972,14 +2969,60 @@
 }
 
 @media (max-width: 600px) {
+  .header-bar {
+    height: 44px;
+    padding: 0 8px;
+    padding-left: max(8px, env(safe-area-inset-left));
+    padding-right: max(8px, env(safe-area-inset-right));
+    gap: 6px;
+  }
+
+  .folio-btn {
+    min-width: 32px;
+    min-height: 32px;
+    padding: 0 6px;
+  }
+
   .mobile-hint-slot {
     display: block;
     width: 100%;
     max-width: 560px;
   }
 
+  .compact-verdict-slot .accuse-panel {
+    padding: 7px 9px;
+  }
+
+  .compact-verdict-slot .accuse-title {
+    font-size: 0.86rem;
+  }
+
+  .compact-verdict-slot .verdict-pips {
+    display: none;
+  }
+
+  .compact-verdict-slot .accuse-sub {
+    font-size: 0.75rem;
+    margin-top: 2px;
+    line-height: 1.25;
+  }
+
+  .compact-verdict-slot .accuse-suspects-row {
+    gap: 5px;
+    margin-top: 6px;
+  }
+
   .compact-verdict-slot .accuse-chip-btn {
-    min-height: 38px;
+    min-height: 32px;
+    padding: 3px 8px 3px 5px;
+    font-size: 0.76rem;
+    gap: 5px;
+  }
+
+  .compact-verdict-slot .accuse-chip-dot {
+    width: 19px;
+    height: 19px;
+    font-size: 0.66rem;
   }
 
   .suspect-column > .hint-banner {
@@ -2989,10 +3032,10 @@
   .mobile-clue-bar {
     display: flex;
     align-items: flex-start;
-    gap: 9px;
+    gap: 8px;
     width: 100%;
     max-width: 560px;
-    padding: 8px 9px 8px 10px;
+    padding: 6px 8px 6px 9px;
     background: var(--bg-elevated);
     border: 1px solid var(--ink-rule);
     border-left: 3.5px solid var(--person-ink, var(--venue-ink));
@@ -3020,19 +3063,19 @@
     border-left-width: 1px;
     font-family: var(--font-display);
     font-style: italic;
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     color: var(--ink-secondary);
-    padding: 7px 10px;
+    padding: 6px 10px;
   }
 
   .mobile-clue-pip {
-    width: 24px;
-    height: 24px;
+    width: 22px;
+    height: 22px;
     margin-top: 1px;
     border-radius: 50%;
     color: #fffdf8;
     font-family: var(--font-mono);
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     font-weight: 700;
     display: inline-flex;
     align-items: center;
@@ -3050,43 +3093,44 @@
   .mobile-clue-head {
     display: flex;
     align-items: baseline;
-    gap: 6px;
+    gap: 5px;
     flex-wrap: wrap;
   }
 
   .mobile-clue-kicker {
     font-family: var(--font-mono);
-    font-size: 0.62rem;
+    font-size: 0.6rem;
     font-weight: 700;
     letter-spacing: 0.08em;
     color: #7c5615;
-    margin-bottom: 2px;
+    margin-bottom: 1px;
   }
 
   .mobile-clue-lines {
-    margin-top: 2px;
-    font-size: 0.84rem;
-    line-height: 1.34;
+    margin-top: 1px;
+    font-size: 0.8rem;
+    line-height: 1.28;
     color: var(--ink-primary);
   }
 
   .mobile-clue-bar .card-check-btn {
-    width: 30px;
-    height: 30px;
+    width: 28px;
+    height: 28px;
     margin-top: 0;
   }
 
   .board-column {
-    padding: 8px 6px 10px;
-    gap: 6px;
+    padding: 5px 6px 8px;
+    gap: 5px;
   }
 
   .board-wrapper {
-    padding: 6px 7px 7px 4px;
+    padding: 4px 6px 5px 4px;
   }
 
   .board-top-strip {
-    padding: 0 2px 4px 4px;
+    margin-bottom: 3px;
+    padding: 0 2px 3px 4px;
   }
 
   .plate-sep,
@@ -3095,17 +3139,22 @@
   }
 
   .grid-with-coords {
-    grid-template-columns: 16px auto;
+    grid-template-columns: 15px auto;
     gap: 2px;
   }
 
   .crime-grid {
-    width: min(calc(100vw - 44px), 460px);
-    height: min(calc(100vw - 44px), 460px);
+    width: max(220px, min(calc(100vw - 40px), calc(100dvh - 255px), 440px));
+    height: max(220px, min(calc(100vw - 40px), calc(100dvh - 255px), 440px));
+  }
+
+  .board-column.has-verdict .crime-grid {
+    width: max(210px, min(calc(100vw - 40px), calc(100dvh - 365px), 420px));
+    height: max(210px, min(calc(100vw - 40px), calc(100dvh - 365px), 420px));
   }
 
   .room-label {
-    font-size: 0.5rem;
+    font-size: 0.48rem;
     padding: 0.5px 3px;
   }
 
@@ -3113,60 +3162,92 @@
     inset: 2px;
   }
 
+  .token-tray-wrap {
+    gap: 0;
+  }
+
   .token-tray {
-    padding: 6px 6px 5px;
+    grid-template-columns: repeat(var(--token-count, 5), minmax(0, 1fr));
+    padding: 4px 4px 3px;
+    gap: 2px;
   }
 
-  .action-dock {
-    flex-direction: column;
-    gap: 6px;
-    padding: 6px;
+  .token-socket {
+    width: clamp(22px, 6.4vw, 28px);
+    height: clamp(22px, 6.4vw, 28px);
   }
 
-  .dock-divider {
+  .tray-pawn-letter {
+    font-size: 0.7rem;
+  }
+
+  .token-slot {
+    padding: 1px 0;
+    gap: 1px;
+  }
+
+  .token-slot-name {
+    font-size: 0.59rem;
+  }
+
+  .token-slot-meta {
+    font-size: 0.48rem;
+    height: 8px;
+  }
+
+  .tool-status-line {
     display: none;
   }
 
+  /* Sleek single-row mobile drafting dock */
+  .action-dock {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 5px;
+  }
+
+  .dock-divider {
+    display: block;
+    height: 24px;
+    flex-shrink: 0;
+  }
+
   .mode-group {
-    width: 100%;
+    flex: 1;
+    min-width: 0;
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 3px;
+    gap: 2px;
   }
 
   .mode-btn {
+    flex-direction: column;
     min-height: 38px;
-    padding: 0 3px;
+    padding: 3px 2px 2px;
     justify-content: center;
-    gap: 3px;
-    font-size: 0.7rem;
+    gap: 1px;
+    font-size: 0.58rem;
+    line-height: 1;
     white-space: nowrap;
   }
 
   .utility-group {
-    width: 100%;
-    display: grid;
-    grid-template-columns: 1fr 1fr 42px;
-    gap: 6px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
   }
 
   .dock-btn {
     min-height: 38px;
-    width: 100%;
   }
 
-  .dock-btn.undo-redo-btn {
-    width: 100%;
-    padding: 0 10px;
-  }
-
-  .mobile-btn-label {
-    display: inline;
-  }
-
-  .dock-btn.assist-trigger-btn {
-    width: 42px;
-    min-width: 42px;
+  .dock-btn.icon-square {
+    width: 34px;
+    min-width: 34px;
+    padding: 0;
   }
 }
 
@@ -3177,10 +3258,6 @@
 
   .folio-catalog {
     display: none;
-  }
-
-  .token-tray {
-    grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
   }
 }
 

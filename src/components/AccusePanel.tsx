@@ -80,11 +80,23 @@ export const AccusePanel: React.FC<AccusePanelProps> = ({
       {readyToAccuse ? (
         <>
           <p className="accuse-sub">
-            Everyone is placed! Select the suspect alone in the{' '}
-            <strong>
-              {victimRoomId !== null ? puzzle.rooms[victimRoomId].name : 'room'}
-            </strong>{' '}
-            with the victim:
+            {compact ? (
+              <>
+                Who was alone in{' '}
+                <strong>
+                  {victimRoomId !== null ? puzzle.rooms[victimRoomId].name : 'the room'}
+                </strong>{' '}
+                with {victimName}?
+              </>
+            ) : (
+              <>
+                Everyone is placed! Select the suspect alone in the{' '}
+                <strong>
+                  {victimRoomId !== null ? puzzle.rooms[victimRoomId].name : 'room'}
+                </strong>{' '}
+                with the victim:
+              </>
+            )}
           </p>
           <div className="accuse-suspects-row">
             {suspects.map((s) => {
@@ -107,8 +119,9 @@ export const AccusePanel: React.FC<AccusePanelProps> = ({
         </>
       ) : isConflictBlock ? (
         <p className="accuse-sub">
-          All {totalCount} characters are placed, but two share a row or column (outlined in
-          red). Move a pawn to accuse the culprit.
+          {compact
+            ? 'Two characters share a row or column (outlined in red). Move one to accuse.'
+            : `All ${totalCount} characters are placed, but two share a row or column (outlined in red). Move a pawn to accuse the culprit.`}
         </p>
       ) : (
         <p className="accuse-sub">

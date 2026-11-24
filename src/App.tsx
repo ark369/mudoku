@@ -655,6 +655,20 @@ export const App: React.FC = () => {
   const hasRowColConflict = rowColConflicts.length > 0;
   const showCompactVerdict = readyToAccuse || (allPlaced && hasRowColConflict);
 
+  const compactVerdictRef = useRef<HTMLDivElement | null>(null);
+  const prevCompactVerdictRef = useRef(false);
+
+  useEffect(() => {
+    if (showCompactVerdict && !prevCompactVerdictRef.current) {
+      window.requestAnimationFrame(() => {
+        if (typeof window !== 'undefined' && window.innerWidth <= 900) {
+          compactVerdictRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+      });
+    }
+    prevCompactVerdictRef.current = showCompactVerdict;
+  }, [showCompactVerdict]);
+
   const toggleCheckedOwner = (ownerId: string) => {
     setCheckedOwners((prev) => {
       const next = new Set(prev);
@@ -770,7 +784,7 @@ export const App: React.FC = () => {
         )}
 
         <main className="workspace">
-          <section className="board-column">
+          <section className={`board-column ${showCompactVerdict ? 'has-verdict' : ''}`}>
             <div className="board-stage">
               <CrimeSceneBoard
                 puzzle={puzzle}
@@ -828,7 +842,7 @@ export const App: React.FC = () => {
             {hintDrawerNode && <div className="mobile-hint-slot">{hintDrawerNode}</div>}
 
             {showCompactVerdict && (
-              <div className="compact-verdict-slot">
+              <div className="compact-verdict-slot" ref={compactVerdictRef}>
                 <AccusePanel
                   puzzle={puzzle}
                   placements={placements}
