@@ -15,6 +15,7 @@ interface SuspectPanelProps {
   hintClueIds: Set<string>;
   readyToAccuse: boolean;
   hasRowColConflict?: boolean;
+  assisted?: boolean;
   hideCompactAccuse?: boolean;
   hintSlot?: React.ReactNode;
   onSelectPerson: (personId: string | null) => void;
@@ -33,6 +34,7 @@ export const SuspectPanel: React.FC<SuspectPanelProps> = ({
   hintClueIds,
   readyToAccuse,
   hasRowColConflict = false,
+  assisted = false,
   hideCompactAccuse = false,
   hintSlot,
   onSelectPerson,
@@ -193,6 +195,7 @@ export const SuspectPanel: React.FC<SuspectPanelProps> = ({
         placements={placements}
         readyToAccuse={readyToAccuse}
         hasRowColConflict={hasRowColConflict}
+        assisted={assisted}
         onAccuseSuspect={onAccuseSuspect}
       />
     </aside>

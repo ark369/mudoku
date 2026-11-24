@@ -1,6 +1,9 @@
 import type { Coord, Difficulty } from '../engine/types';
 
+export type PlayMode = 'pure' | 'assisted';
+
 export interface AppSettings {
+  playMode: PlayMode;
   autoGuides: boolean;
   clueHighlights: boolean;
   autoPruneNotes: boolean;
@@ -39,6 +42,7 @@ const STATS_KEY = 'murdoku_studio_stats_v1';
 const BOARD_KEY = 'murdoku_studio_active_board_v1';
 
 export const DEFAULT_SETTINGS: AppSettings = {
+  playMode: 'pure',
   autoGuides: true,
   clueHighlights: true,
   autoPruneNotes: true,

@@ -20,6 +20,7 @@ interface ActionDockProps {
   canRedo: boolean;
   onUndo: () => void;
   onRedo: () => void;
+  showAssist?: boolean;
   onCheckClues: () => void;
   onRequestHint: () => void;
 }
@@ -31,11 +32,18 @@ export const ActionDock: React.FC<ActionDockProps> = ({
   canRedo,
   onUndo,
   onRedo,
+  showAssist = true,
   onCheckClues,
   onRequestHint,
 }) => {
   const [assistOpen, setAssistOpen] = useState(false);
   const menuWrapRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!showAssist && assistOpen) {
+      setAssistOpen(false);
+    }
+  }, [showAssist, assistOpen]);
 
   useEffect(() => {
     if (!assistOpen) return;
@@ -124,55 +132,57 @@ export const ActionDock: React.FC<ActionDockProps> = ({
           <Redo2 size={15} />
         </button>
 
-        <div className="assist-menu-wrap" ref={menuWrapRef}>
-          <button
-            type="button"
-            className={`dock-btn icon-square assist-trigger-btn ${assistOpen ? 'active' : ''}`}
-            onClick={() => setAssistOpen((open) => !open)}
-            aria-haspopup="menu"
-            aria-expanded={assistOpen}
-            aria-label="More tools"
-            title="More tools"
-          >
-            <MoreHorizontal size={15} />
-          </button>
+        {showAssist && (
+          <div className="assist-menu-wrap" ref={menuWrapRef}>
+            <button
+              type="button"
+              className={`dock-btn icon-square assist-trigger-btn ${assistOpen ? 'active' : ''}`}
+              onClick={() => setAssistOpen((open) => !open)}
+              aria-haspopup="menu"
+              aria-expanded={assistOpen}
+              aria-label="More tools"
+              title="More tools"
+            >
+              <MoreHorizontal size={15} />
+            </button>
 
-          {assistOpen && (
-            <div className="assist-menu" role="menu" aria-label="Case assistance">
-              <div className="assist-menu-kicker">CASE ASSISTANCE</div>
-              <button
-                type="button"
-                role="menuitem"
-                className="assist-menu-item"
-                onClick={() => {
-                  setAssistOpen(false);
-                  onCheckClues();
-                }}
-              >
-                <CheckCircle2 size={15} />
-                <span className="assist-menu-copy">
-                  <span className="assist-menu-title">Check Clues</span>
-                  <span className="assist-menu-sub">Verify placements so far</span>
-                </span>
-              </button>
-              <button
-                type="button"
-                role="menuitem"
-                className="assist-menu-item"
-                onClick={() => {
-                  setAssistOpen(false);
-                  onRequestHint();
-                }}
-              >
-                <Lightbulb size={15} />
-                <span className="assist-menu-copy">
-                  <span className="assist-menu-title">Get a Hint</span>
-                  <span className="assist-menu-sub">Reveal the next logical step</span>
-                </span>
-              </button>
-            </div>
-          )}
-        </div>
+            {assistOpen && (
+              <div className="assist-menu" role="menu" aria-label="Case assistance">
+                <div className="assist-menu-kicker">CASE ASSISTANCE</div>
+                <button
+                  type="button"
+                  role="menuitem"
+                  className="assist-menu-item"
+                  onClick={() => {
+                    setAssistOpen(false);
+                    onCheckClues();
+                  }}
+                >
+                  <CheckCircle2 size={15} />
+                  <span className="assist-menu-copy">
+                    <span className="assist-menu-title">Check Clues</span>
+                    <span className="assist-menu-sub">Verify placements so far</span>
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  className="assist-menu-item"
+                  onClick={() => {
+                    setAssistOpen(false);
+                    onRequestHint();
+                  }}
+                >
+                  <Lightbulb size={15} />
+                  <span className="assist-menu-copy">
+                    <span className="assist-menu-title">Get a Hint</span>
+                    <span className="assist-menu-sub">Reveal the next logical step</span>
+                  </span>
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

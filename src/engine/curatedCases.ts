@@ -11319,8 +11319,9 @@ export function getCuratedCasesByDifficulty(difficulty: Difficulty): CuratedCase
 }
 
 export function getCuratedPuzzle(caseId: string): Puzzle | null {
-  const spec = CURATED_CASES.find((c) => c.id === caseId);
-  if (!spec) return null;
+  const caseIndex = CURATED_CASES.findIndex((c) => c.id === caseId);
+  if (caseIndex < 0) return null;
+  const spec = CURATED_CASES[caseIndex];
 
   const roomCellsMap = new Map<number, Coord[]>();
   const grid: Cell[][] = spec.roomGrid.map((row, r) =>
@@ -11348,7 +11349,7 @@ export function getCuratedPuzzle(caseId: string): Puzzle | null {
     cells: roomCellsMap.get(rm.id) ?? [],
   }));
 
-  const people = diversifyCuratedPeople(spec.people, spec.id);
+  const people = diversifyCuratedPeople(spec.people, caseIndex);
 
   const clues: Clue[] = spec.clues.map((draft) => ({
     ...draft,

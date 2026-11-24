@@ -16,6 +16,7 @@ interface CrimeSceneBoardProps {
   notes: Record<string, string[]>;
   autoGuides: boolean;
   clueHighlightsEnabled: boolean;
+  assisted?: boolean;
   rowColConflicts: Coord[];
   hintHighlightCells: Coord[];
   legendHighlightKind?: ObjectKind | null;
@@ -49,6 +50,7 @@ export const CrimeSceneBoard: React.FC<CrimeSceneBoardProps> = ({
   notes,
   autoGuides,
   clueHighlightsEnabled,
+  assisted = false,
   rowColConflicts,
   hintHighlightCells,
   legendHighlightKind = null,
@@ -195,12 +197,12 @@ export const CrimeSceneBoard: React.FC<CrimeSceneBoardProps> = ({
     return items;
   }, [rooms, grid, size]);
 
-  // Victim's room id when all N people are validly placed
+  // Victim's room id when all N people are validly placed (Assisted mode only)
   const victimRoomId = useMemo(() => {
-    if (!readyToAccuse) return null;
+    if (!assisted || !readyToAccuse) return null;
     const vPos = placements[victimId];
     return vPos ? grid[vPos.r][vPos.c].roomId : null;
-  }, [readyToAccuse, placements, victimId, grid]);
+  }, [assisted, readyToAccuse, placements, victimId, grid]);
 
   // Unified editorial clue highlights: split regions (rooms/outer edge), objects, and people
   const {
@@ -617,11 +619,13 @@ export const CrimeSceneBoard: React.FC<CrimeSceneBoardProps> = ({
             aria-hidden="true"
           >
             {Array.from({ length: size }, (_, c) => {
-              const cls = conflictCols.has(c)
-                ? 'coord-conflict'
-                : autoGuides && occupiedCols.has(c)
-                  ? 'coord-occupied'
-                  : '';
+              const showConflict = assisted || Object.keys(placements).length === people.length;
+              const cls =
+                showConflict && conflictCols.has(c)
+                  ? 'coord-conflict'
+                  : autoGuides && occupiedCols.has(c)
+                    ? 'coord-occupied'
+                    : '';
               return (
                 <span key={c} className={cls}>
                   {c + 1}
@@ -636,11 +640,13 @@ export const CrimeSceneBoard: React.FC<CrimeSceneBoardProps> = ({
             aria-hidden="true"
           >
             {Array.from({ length: size }, (_, r) => {
-              const cls = conflictRows.has(r)
-                ? 'coord-conflict'
-                : autoGuides && occupiedRows.has(r)
-                  ? 'coord-occupied'
-                  : '';
+              const showConflict = assisted || Object.keys(placements).length === people.length;
+              const cls =
+                showConflict && conflictRows.has(r)
+                  ? 'coord-conflict'
+                  : autoGuides && occupiedRows.has(r)
+                    ? 'coord-occupied'
+                    : '';
               return (
                 <span key={r} className={cls}>
                   {r + 1}
@@ -683,20 +689,22 @@ export const CrimeSceneBoard: React.FC<CrimeSceneBoardProps> = ({
                 const isCrossed = crossouts.has(k);
                 const cellNotes = notes[k] ?? [];
                 const draggingPersonId = boardDrag?.person.id ?? activePersonId;
+                const showConflict = assisted || Object.keys(placements).length === people.length;
 
                 const wallTop = r > 0 && grid[r - 1][c].roomId !== cell.roomId;
                 const wallBottom = r < size - 1 && grid[r + 1][c].roomId !== cell.roomId;
                 const wallLeft = c > 0 && grid[r][c - 1].roomId !== cell.roomId;
                 const wallRight = c < size - 1 && grid[r][c + 1].roomId !== cell.roomId;
 
-                const rowConf = conflictRows.has(r);
-                const colConf = conflictCols.has(c);
+                const rowConf = assisted && conflictRows.has(r);
+                const colConf = assisted && conflictCols.has(c);
                 const rowOcc = autoGuides && occupiedRows.has(r);
                 const colOcc = autoGuides && occupiedCols.has(c);
                 const showGuide = !placed && cell.blocking === null && (rowConf || colConf || rowOcc || colOcc);
 
                 const isHover = dragHoverCell === k && cell.blocking === null;
                 const isHoverConflict =
+                  assisted &&
                   isHover &&
                   Object.entries(placements).some(
                     ([pid, pos]) =>
@@ -747,7 +755,7 @@ export const CrimeSceneBoard: React.FC<CrimeSceneBoardProps> = ({
                   cluePersonKeys.has(k) ? 'clue-person-ref' : '',
                   isLegendMatch ? 'legend-glow' : '',
                   hintKeys.has(k) ? 'hint-highlight' : '',
-                  conflictKeys.has(k) ? 'rowcol-conflict' : '',
+                  showConflict && conflictKeys.has(k) ? 'rowcol-conflict' : '',
                   victimRoomId === cell.roomId ? 'victim-room-glow' : '',
                 ]
                   .filter(Boolean)

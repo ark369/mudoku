@@ -10,8 +10,11 @@ import {
 import { DIFFICULTY_CONFIG, type Puzzle } from '../engine/types';
 import { MYSTERY_THEMES } from '../engine/themes';
 
+import type { PlayMode } from '../utils/storage';
+
 interface HeaderBarProps {
   puzzle: Puzzle;
+  playMode: PlayMode;
   totalSolved: number;
   onOpenNewCase: () => void;
   onOpenRules: () => void;
@@ -23,6 +26,7 @@ interface HeaderBarProps {
 
 export const HeaderBar: React.FC<HeaderBarProps> = ({
   puzzle,
+  playMode,
   totalSolved,
   onOpenNewCase,
   onOpenRules,
@@ -65,6 +69,17 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
           </span>
           <Copy size={11} />
         </button>
+
+        {playMode === 'assisted' && (
+          <button
+            type="button"
+            className="mode-status-pill"
+            onClick={onToggleSettings}
+            title="Assisted mode active — tap to switch back to Pure mode"
+          >
+            Assisted
+          </button>
+        )}
       </div>
 
       <nav className="folio-nav" aria-label="Folio controls">

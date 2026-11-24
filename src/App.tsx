@@ -229,9 +229,11 @@ export const App: React.FC = () => {
     return Object.keys(placements).length === puzzle.people.length && rowColConflicts.length === 0;
   }, [placements, puzzle.people.length, rowColConflicts.length]);
 
+  const isAssisted = settings.playMode === 'assisted';
+
   const pruneNotesForPlacement = useCallback(
     (prevNotes: Record<string, string[]>, personId: string, r: number, c: number) => {
-      if (!settings.autoPruneNotes) return prevNotes;
+      if (!isAssisted || !settings.autoPruneNotes) return prevNotes;
       const next: Record<string, string[]> = {};
       for (const [cellKey, list] of Object.entries(prevNotes)) {
         const [rrStr, ccStr] = cellKey.split(',');
@@ -245,7 +247,7 @@ export const App: React.FC = () => {
       }
       return next;
     },
-    [settings.autoPruneNotes]
+    [isAssisted, settings.autoPruneNotes]
   );
 
   const selectPersonAndScroll = useCallback((pid: string | null) => {
@@ -511,8 +513,12 @@ export const App: React.FC = () => {
   const handleAccuseSuspect = (suspectId: string) => {
     const check = checkPlayerPlacements(puzzle, placements);
     if (!check.validSoFar) {
-      setViolatedClueIds(new Set(check.violatedClueIds));
-      showToast(check.message, 'warn');
+      if (isAssisted) {
+        setViolatedClueIds(new Set(check.violatedClueIds));
+        showToast(check.message, 'warn');
+      } else {
+        showToast("Not quite — some placements don't match the clues yet.", 'warn');
+      }
       playWarningSound(settings.soundEnabled);
       return;
     }
@@ -642,6 +648,11 @@ export const App: React.FC = () => {
   };
 
   const updateSetting = <K extends keyof AppSettings>(key: K, val: AppSettings[K]) => {
+    if (key === 'playMode' && val === 'pure') {
+      setLiveHint(null);
+      setHintStepOffset(0);
+      setViolatedClueIds(new Set());
+    }
     setSettings((prev) => {
       const next = { ...prev, [key]: val };
       saveSettings(next);
@@ -649,8 +660,11 @@ export const App: React.FC = () => {
     });
   };
 
-  const hintHighlightCells = liveHint?.step?.highlightCells ?? [];
-  const hintClueIds = new Set(liveHint?.step?.involvedClueIds ?? []);
+  const effectiveAutoGuides = isAssisted && settings.autoGuides;
+  const effectiveClueHighlights = isAssisted && settings.clueHighlights;
+
+  const hintHighlightCells = isAssisted ? liveHint?.step?.highlightCells ?? [] : [];
+  const hintClueIds = new Set(isAssisted ? liveHint?.step?.involvedClueIds ?? [] : []);
   const allPlaced = Object.keys(placements).length === puzzle.people.length;
   const hasRowColConflict = rowColConflicts.length > 0;
   const showCompactVerdict = readyToAccuse || (allPlaced && hasRowColConflict);
@@ -688,25 +702,27 @@ export const App: React.FC = () => {
     ? puzzle.clues.find((c) => c.id === activeClueId) ?? null
     : null;
 
-  const hintDrawerNode = liveHint ? (
-    <HintDrawer
-      hint={liveHint}
-      stage={hintStage}
-      onRevealLogic={() => setHintStage(2)}
-      onNextStep={handleNextHintStep}
-      onApplyStep={handleApplyHintStep}
-      onClose={() => {
-        setLiveHint(null);
-        setHintStepOffset(0);
-      }}
-    />
-  ) : null;
+  const hintDrawerNode =
+    isAssisted && liveHint ? (
+      <HintDrawer
+        hint={liveHint}
+        stage={hintStage}
+        onRevealLogic={() => setHintStage(2)}
+        onNextStep={handleNextHintStep}
+        onApplyStep={handleApplyHintStep}
+        onClose={() => {
+          setLiveHint(null);
+          setHintStepOffset(0);
+        }}
+      />
+    ) : null;
 
   return (
     <>
       <div className="app-shell" data-venue={puzzle.themeId}>
         <HeaderBar
           puzzle={puzzle}
+          playMode={settings.playMode}
           totalSolved={stats.totalSolved}
           onOpenNewCase={() => setShowNewCase(true)}
           onOpenRules={() => setShowRules(true)}
@@ -732,30 +748,65 @@ export const App: React.FC = () => {
               <div style={{ fontWeight: 800, marginBottom: 8, fontSize: '0.94rem' }}>
                 Studio Preferences
               </div>
-              <label className="setting-row">
-                <span>Auto Row/Col Shading</span>
-                <input
-                  type="checkbox"
-                  checked={settings.autoGuides}
-                  onChange={(e) => updateSetting('autoGuides', e.target.checked)}
-                />
-              </label>
-              <label className="setting-row">
-                <span>Smart Clue Highlighting</span>
-                <input
-                  type="checkbox"
-                  checked={settings.clueHighlights}
-                  onChange={(e) => updateSetting('clueHighlights', e.target.checked)}
-                />
-              </label>
-              <label className="setting-row">
-                <span>Auto-Prune Notes on Place</span>
-                <input
-                  type="checkbox"
-                  checked={settings.autoPruneNotes}
-                  onChange={(e) => updateSetting('autoPruneNotes', e.target.checked)}
-                />
-              </label>
+
+              <div className="play-mode-block">
+                <div className="play-mode-label">Solving Mode</div>
+                <div className="play-mode-segmented" role="radiogroup" aria-label="Solving mode">
+                  <button
+                    type="button"
+                    role="radio"
+                    aria-checked={!isAssisted}
+                    className={`play-mode-btn ${!isAssisted ? 'active' : ''}`}
+                    onClick={() => updateSetting('playMode', 'pure')}
+                  >
+                    Pure
+                  </button>
+                  <button
+                    type="button"
+                    role="radio"
+                    aria-checked={isAssisted}
+                    className={`play-mode-btn ${isAssisted ? 'active' : ''}`}
+                    onClick={() => updateSetting('playMode', 'assisted')}
+                  >
+                    Assisted
+                  </button>
+                </div>
+                <div className="play-mode-caption">
+                  {isAssisted
+                    ? 'Hints, clue check, and board highlights enabled.'
+                    : 'Pure paper-style deduction — no hints or auto-highlights.'}
+                </div>
+              </div>
+
+              {isAssisted && (
+                <>
+                  <label className="setting-row">
+                    <span>Auto Row/Col Shading</span>
+                    <input
+                      type="checkbox"
+                      checked={settings.autoGuides}
+                      onChange={(e) => updateSetting('autoGuides', e.target.checked)}
+                    />
+                  </label>
+                  <label className="setting-row">
+                    <span>Smart Clue Highlighting</span>
+                    <input
+                      type="checkbox"
+                      checked={settings.clueHighlights}
+                      onChange={(e) => updateSetting('clueHighlights', e.target.checked)}
+                    />
+                  </label>
+                  <label className="setting-row">
+                    <span>Auto-Prune Notes on Place</span>
+                    <input
+                      type="checkbox"
+                      checked={settings.autoPruneNotes}
+                      onChange={(e) => updateSetting('autoPruneNotes', e.target.checked)}
+                    />
+                  </label>
+                </>
+              )}
+
               <label className="setting-row">
                 <span>Sound Effects</span>
                 <input
@@ -794,8 +845,9 @@ export const App: React.FC = () => {
                 placements={placements}
                 crossouts={crossouts}
                 notes={notes}
-                autoGuides={settings.autoGuides}
-                clueHighlightsEnabled={settings.clueHighlights}
+                autoGuides={effectiveAutoGuides}
+                clueHighlightsEnabled={effectiveClueHighlights}
+                assisted={isAssisted}
                 rowColConflicts={rowColConflicts}
                 hintHighlightCells={hintHighlightCells}
                 legendHighlightKind={legendHighlightKind}
@@ -848,6 +900,7 @@ export const App: React.FC = () => {
                   placements={placements}
                   readyToAccuse={readyToAccuse}
                   hasRowColConflict={hasRowColConflict}
+                  assisted={isAssisted}
                   onAccuseSuspect={handleAccuseSuspect}
                   compact
                 />
@@ -931,6 +984,7 @@ export const App: React.FC = () => {
               canRedo={redoStack.length > 0}
               onUndo={handleUndo}
               onRedo={handleRedo}
+              showAssist={isAssisted}
               onCheckClues={handleCheckClues}
               onRequestHint={handleRequestHint}
             />
@@ -946,6 +1000,7 @@ export const App: React.FC = () => {
             hintClueIds={hintClueIds}
             readyToAccuse={readyToAccuse}
             hasRowColConflict={hasRowColConflict}
+            assisted={isAssisted}
             hideCompactAccuse={showCompactVerdict}
             hintSlot={hintDrawerNode}
             onSelectPerson={(pid) => {

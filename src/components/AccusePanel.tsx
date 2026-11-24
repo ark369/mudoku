@@ -7,6 +7,7 @@ interface AccusePanelProps {
   placements: Record<string, Coord>;
   readyToAccuse: boolean;
   hasRowColConflict?: boolean;
+  assisted?: boolean;
   onAccuseSuspect: (suspectId: string) => void;
   compact?: boolean;
 }
@@ -16,6 +17,7 @@ export const AccusePanel: React.FC<AccusePanelProps> = ({
   placements,
   readyToAccuse,
   hasRowColConflict = false,
+  assisted = false,
   onAccuseSuspect,
   compact = false,
 }) => {
@@ -100,7 +102,7 @@ export const AccusePanel: React.FC<AccusePanelProps> = ({
           </p>
           <div className="accuse-suspects-row">
             {suspects.map((s) => {
-              const isRoommate = roommatesWithVictim.has(s.id);
+              const isRoommate = assisted && roommatesWithVictim.has(s.id);
               return (
                 <button
                   key={s.id}
