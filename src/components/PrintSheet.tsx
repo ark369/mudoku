@@ -89,12 +89,19 @@ export const PrintSheet: React.FC<PrintSheetProps> = ({ puzzle, includeKey }) =>
                     style={{ backgroundColor: room.bgHex }}
                   >
                     {cell.blocking && (
-                      <div style={{ width: '74%', height: '74%' }}>
+                      <div style={{ width: '78%', height: '78%' }}>
                         <FurnitureSvg kind={cell.blocking} />
                       </div>
                     )}
                     {cell.occupiable && (
-                      <div style={{ width: '72%', height: '72%', opacity: 0.72 }}>
+                      <div
+                        style={{
+                          width: '68%',
+                          height: '68%',
+                          opacity: 0.62,
+                          filter: 'saturate(0.42) brightness(1.08)',
+                        }}
+                      >
                         <FurnitureSvg kind={cell.occupiable} />
                       </div>
                     )}

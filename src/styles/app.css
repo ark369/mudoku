@@ -451,14 +451,15 @@
 }
 
 .map-key-chip.blocking {
-  background-color: #efe6d5;
+  background-color: #ebe2d0;
   background-image: repeating-linear-gradient(
     -45deg,
-    rgba(25, 26, 31, 0.08),
-    rgba(25, 26, 31, 0.08) 2px,
+    rgba(25, 26, 31, 0.12),
+    rgba(25, 26, 31, 0.12) 2px,
     transparent 2px,
     transparent 6px
   );
+  border-color: rgba(25, 26, 31, 0.34);
 }
 
 .map-key-chip.active {
@@ -474,6 +475,15 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+}
+
+.map-key-chip:not(.blocking) .map-key-icon svg {
+  opacity: 0.76;
+  filter: saturate(0.45) brightness(1.08) contrast(0.92);
+}
+
+.map-key-chip.blocking .map-key-icon svg {
+  filter: saturate(1.08) drop-shadow(0 1px 1.5px rgba(25, 26, 31, 0.25));
 }
 
 .map-key-guide {
@@ -719,15 +729,15 @@
   inset: 0;
   z-index: 1;
   pointer-events: none;
-  background-color: rgba(25, 26, 31, 0.085);
+  background-color: rgba(25, 26, 31, 0.13);
   background-image: repeating-linear-gradient(
     -45deg,
-    rgba(25, 26, 31, 0.12),
-    rgba(25, 26, 31, 0.12) 2.5px,
+    rgba(25, 26, 31, 0.16),
+    rgba(25, 26, 31, 0.16) 2.5px,
     transparent 2.5px,
-    transparent 7px
+    transparent 6.5px
   );
-  box-shadow: inset 0 0 0 1.5px rgba(25, 26, 31, 0.22);
+  box-shadow: inset 0 0 0 1.5px rgba(25, 26, 31, 0.3);
 }
 
 /* Layer 1: Dynamic Sudoku Row/Col Sightline Guides */
@@ -950,7 +960,7 @@
 
 .cell-furniture {
   position: absolute;
-  inset: 7%;
+  inset: 10%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -959,12 +969,25 @@
 }
 
 .cell-furniture.occupiable {
-  opacity: 0.94;
-  transition: opacity 0.14s ease;
+  opacity: 0.66;
+  transition: opacity 0.14s ease, filter 0.14s ease;
+}
+
+.cell-furniture.occupiable svg {
+  filter: saturate(0.42) brightness(1.09) contrast(0.9);
+  transition: filter 0.14s ease;
+}
+
+.grid-cell.legend-glow .cell-furniture.occupiable {
+  opacity: 0.88;
+}
+
+.grid-cell.legend-glow .cell-furniture.occupiable svg {
+  filter: saturate(0.68) brightness(1.04) contrast(0.96);
 }
 
 .grid-cell.has-pawn .cell-furniture.occupiable {
-  opacity: 0.55;
+  opacity: 0.34;
 }
 
 .cell-furniture.blocking {
@@ -972,7 +995,7 @@
 }
 
 .cell-furniture.blocking svg {
-  filter: drop-shadow(0 2px 3px rgba(25, 26, 31, 0.24));
+  filter: saturate(1.1) contrast(1.04) drop-shadow(0 2.5px 3.5px rgba(25, 26, 31, 0.36));
 }
 
 .cell-crossout {
