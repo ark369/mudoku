@@ -2,12 +2,10 @@ import React from 'react';
 import { Award, Copy, Printer, Sparkles, X } from 'lucide-react';
 import type { Puzzle } from '../engine/types';
 import type { SolvedStats } from '../utils/storage';
-import { formatTime } from './HeaderBar';
 import { PortraitSvg } from './PortraitSvg';
 
 interface VictoryModalProps {
   puzzle: Puzzle;
-  elapsedSeconds: number;
   hintsUsed: number;
   stats: SolvedStats;
   nextCuratedNumber?: number | null;
@@ -21,7 +19,6 @@ const ARCHIVAL_FOILS = ['#B43225', '#9E6F21', '#2E3F66', '#2C5E44', '#6D2634', '
 
 export const VictoryModal: React.FC<VictoryModalProps> = ({
   puzzle,
-  elapsedSeconds,
   hintsUsed,
   stats,
   nextCuratedNumber,
@@ -86,10 +83,6 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
         </div>
 
         <div className="victory-stats">
-          <div className="stat-tile">
-            <div className="stat-val">{formatTime(elapsedSeconds)}</div>
-            <div className="stat-lbl">Time</div>
-          </div>
           <div className="stat-tile">
             <div className="stat-val">{hintsUsed}</div>
             <div className="stat-lbl">Hints Used</div>

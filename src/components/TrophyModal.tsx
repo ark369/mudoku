@@ -3,7 +3,6 @@ import { BookMarked, Calendar, Trophy, X } from 'lucide-react';
 import { CURATED_CASES } from '../engine/curatedCases';
 import { DIFFICULTY_CONFIG, type Difficulty } from '../engine/types';
 import type { SolvedStats } from '../utils/storage';
-import { formatTime } from './HeaderBar';
 
 interface TrophyModalProps {
   stats: SolvedStats;
@@ -65,7 +64,6 @@ export const TrophyModal: React.FC<TrophyModalProps> = ({
           {DIFFICULTIES.map((d) => {
             const cfg = DIFFICULTY_CONFIG[d];
             const solvedCount = stats.byDifficulty[d] ?? 0;
-            const best = stats.bestTimes[d];
             return (
               <div key={d} className="trophy-row">
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -80,9 +78,6 @@ export const TrophyModal: React.FC<TrophyModalProps> = ({
                   </span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <span style={{ fontSize: '0.76rem', color: 'var(--ink-muted)', fontWeight: 700 }}>
-                    Best: {best !== undefined ? formatTime(best) : '—'}
-                  </span>
                   <button
                     type="button"
                     className="trophy-daily-btn"

@@ -129,19 +129,6 @@
   flex-shrink: 0;
 }
 
-.folio-timer {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 4px 8px;
-  font-family: var(--font-mono);
-  font-size: 0.74rem;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  color: var(--ink-secondary);
-  white-space: nowrap;
-}
-
 .folio-nav {
   display: flex;
   align-items: center;
@@ -720,6 +707,11 @@
   cursor: not-allowed;
 }
 
+.crime-grid.cross-mode .grid-cell.is-blocking,
+.crime-grid.erase-mode .grid-cell.is-blocking {
+  cursor: pointer;
+}
+
 /* Layer 1: Permanent Physical Obstacle Hatching */
 .cell-blocking-hatch {
   position: absolute;
@@ -991,6 +983,11 @@
   width: 64%;
   height: 64%;
   opacity: 0.85;
+}
+
+.grid-cell.is-blocking .pencil-cross-svg {
+  opacity: 0.92;
+  filter: drop-shadow(0 0 1.5px rgba(255, 253, 248, 0.9));
 }
 
 /* Placed Domed Enamel Tabletop Token on Board */
@@ -1445,38 +1442,156 @@
   cursor: default;
 }
 
-.dock-btn.check-btn {
-  background: var(--venue-wash);
-  border-color: var(--venue-ink);
-  color: var(--venue-ink);
+.mobile-btn-label {
+  display: none;
 }
 
-.dock-btn.hint-btn {
-  background: var(--ink-brass-soft);
-  border-color: rgba(158, 111, 33, 0.55);
-  color: #6b490c;
+.assist-menu-wrap {
+  position: relative;
 }
 
-/* Board Toast & Quick Cell Popover */
-.board-toast {
+.dock-btn.assist-trigger-btn {
+  color: var(--ink-muted);
+  border-color: var(--ink-rule-soft);
+}
+
+.dock-btn.assist-trigger-btn:hover,
+.dock-btn.assist-trigger-btn.active {
+  color: var(--ink-primary);
+  border-color: var(--ink-rule);
+  background: var(--bg-paper-deep);
+}
+
+.assist-menu {
   position: absolute;
-  bottom: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 30;
-  background: var(--ink-primary);
-  color: #fffdf8;
-  border: 1px solid rgba(176, 138, 75, 0.6);
-  padding: 7px 14px;
+  bottom: calc(100% + 8px);
+  right: 0;
+  z-index: 55;
+  width: 224px;
+  background: var(--bg-elevated);
+  border: 1.5px solid var(--ink-primary);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  animation: tokenPop 0.12s ease-out;
+}
+
+.assist-menu-kicker {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--ink-muted);
+  padding: 2px 6px 5px;
+  border-bottom: 1px solid var(--ink-rule-soft);
+}
+
+.assist-menu-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 8px;
   border-radius: var(--radius-sm);
-  font-size: 0.78rem;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--ink-primary);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.12s ease, border-color 0.12s ease;
+}
+
+.assist-menu-item:hover {
+  background: var(--bg-paper);
+  border-color: var(--ink-rule-soft);
+}
+
+.assist-menu-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.assist-menu-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.assist-menu-sub {
+  font-size: 0.69rem;
+  color: var(--ink-secondary);
+  line-height: 1.2;
+}
+
+/* Subtle Floating Toast (never covers the crime scene grid) */
+.app-toast {
+  position: fixed;
+  bottom: max(14px, env(safe-area-inset-bottom));
+  right: 16px;
+  z-index: 70;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 253, 248, 0.96);
+  color: var(--ink-primary);
+  border: 1px solid var(--ink-rule);
+  border-left: 3px solid var(--venue-ink);
+  padding: 7px 9px 7px 11px;
+  border-radius: var(--radius-sm);
+  font-size: 0.76rem;
   font-weight: 600;
-  box-shadow: var(--shadow-md);
-  white-space: nowrap;
-  max-width: 92%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  pointer-events: none;
+  line-height: 1.3;
+  box-shadow: 0 4px 14px rgba(25, 26, 31, 0.12);
+  max-width: min(360px, calc(100vw - 24px));
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  animation: toastSlideUp 0.16s ease-out;
+}
+
+.app-toast.is-warn {
+  background: rgba(253, 245, 244, 0.97);
+  border-color: rgba(180, 50, 37, 0.32);
+  border-left-color: var(--ink-crimson);
+  color: #6b1e16;
+}
+
+.app-toast-text {
+  min-width: 0;
+}
+
+.app-toast-close {
+  border: none;
+  background: transparent;
+  color: var(--ink-muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  border-radius: 3px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.app-toast-close:hover {
+  color: var(--ink-primary);
+  background: rgba(25, 26, 31, 0.06);
+}
+
+@keyframes toastSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .cell-popover-backdrop {
@@ -2348,7 +2463,7 @@
 
 .victory-stats {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   margin: 8px 0;
   border-top: 1px solid var(--ink-rule);
   border-bottom: 1px solid var(--ink-rule);
@@ -2737,11 +2852,6 @@
     gap: 5px;
   }
 
-  .folio-timer {
-    padding: 3px 6px;
-    font-size: 0.7rem;
-  }
-
   .folio-btn {
     min-width: 34px;
     min-height: 34px;
@@ -2804,6 +2914,26 @@
   .suspect-column.hide-compact-accuse .accuse-panel {
     display: none;
   }
+
+  .app-toast {
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    width: max-content;
+    max-width: calc(100vw - 24px);
+    animation: toastSlideUpCentered 0.16s ease-out;
+  }
+}
+
+@keyframes toastSlideUpCentered {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 6px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
 }
 
 @media (max-width: 680px) {
@@ -2821,13 +2951,6 @@
 
   .compact-verdict-slot .accuse-chip-btn {
     min-height: 38px;
-  }
-
-  .board-toast {
-    white-space: normal;
-    text-align: center;
-    line-height: 1.3;
-    padding: 8px 12px;
   }
 
   .suspect-column > .hint-banner {
@@ -2994,7 +3117,7 @@
   .utility-group {
     width: 100%;
     display: grid;
-    grid-template-columns: 42px 42px 1fr 1fr;
+    grid-template-columns: 1fr 1fr 42px;
     gap: 6px;
   }
 
@@ -3003,7 +3126,16 @@
     width: 100%;
   }
 
-  .dock-btn.icon-square {
+  .dock-btn.undo-redo-btn {
+    width: 100%;
+    padding: 0 10px;
+  }
+
+  .mobile-btn-label {
+    display: inline;
+  }
+
+  .dock-btn.assist-trigger-btn {
     width: 42px;
     min-width: 42px;
   }

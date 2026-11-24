@@ -32,7 +32,7 @@ interface CrimeSceneBoardProps {
   onRemovePersonPlacement?: (personId: string) => void;
   onDragHoverCellChange?: (cellKey: string | null) => void;
   onBoardPawnDragChange?: (dragging: boolean) => void;
-  onToast: (msg: string) => void;
+  onToast: (msg: string, tone?: 'info' | 'warn') => void;
 }
 
 function keyOf(r: number, c: number): string {
@@ -342,7 +342,7 @@ export const CrimeSceneBoard: React.FC<CrimeSceneBoardProps> = ({
 
   const handleBlockingInfo = (blocking: BlockingKind) => {
     const info = OBJECT_INFO[blocking];
-    onToast(`${info.label} — Solid obstacle (suspects can stand beside it, not on it).`);
+    onToast(`${info.label} — Solid obstacle (suspects can stand beside it, not on it).`, 'warn');
   };
 
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -361,10 +361,6 @@ export const CrimeSceneBoard: React.FC<CrimeSceneBoardProps> = ({
     strokeRef.current.visited = new Set();
 
     if (mode === 'cross' || mode === 'erase') {
-      if (cell.blocking !== null) {
-        handleBlockingInfo(cell.blocking);
-        return;
-      }
       strokeRef.current.active = true;
       const k = keyOf(pos.r, pos.c);
       strokeRef.current.visited.add(k);
@@ -511,8 +507,6 @@ export const CrimeSceneBoard: React.FC<CrimeSceneBoardProps> = ({
     if (!strokeRef.current.active) return;
     const pos = cellFromClientPoint(e.clientX, e.clientY);
     if (!pos) return;
-    const cell = grid[pos.r][pos.c];
-    if (cell.blocking !== null) return;
 
     const k = keyOf(pos.r, pos.c);
     if (strokeRef.current.visited.has(k)) return;
@@ -657,7 +651,15 @@ export const CrimeSceneBoard: React.FC<CrimeSceneBoardProps> = ({
 
           <div
             ref={gridRef}
-            className={`crime-grid ${mode === 'place' ? 'place-mode' : ''}`}
+            className={`crime-grid ${
+              mode === 'place'
+                ? 'place-mode'
+                : mode === 'cross'
+                  ? 'cross-mode'
+                  : mode === 'erase'
+                    ? 'erase-mode'
+                    : ''
+            }`}
             style={{
               gridTemplateColumns: `repeat(${size}, 1fr)`,
               gridTemplateRows: `repeat(${size}, 1fr)`,

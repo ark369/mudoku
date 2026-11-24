@@ -5,7 +5,6 @@ import { createSeedCode, getDailySeed } from '../engine/rng';
 import { MYSTERY_THEMES } from '../engine/themes';
 import { DIFFICULTY_CONFIG, type Difficulty } from '../engine/types';
 import type { CuratedSolveRecord } from '../utils/storage';
-import { formatTime } from './HeaderBar';
 
 interface NewCaseModalProps {
   currentDifficulty: Difficulty;
@@ -171,7 +170,7 @@ export const NewCaseModal: React.FC<NewCaseModalProps> = ({
                       <div className="curated-case-tagline">{c.tagline}</div>
                       <div className="curated-meta-row">
                         <span>{theme?.name ?? c.themeId}</span>
-                        {rec && <span>• Solved in {formatTime(rec.bestTime)}</span>}
+                        {rec && <span>• Solved</span>}
                       </div>
                     </div>
 

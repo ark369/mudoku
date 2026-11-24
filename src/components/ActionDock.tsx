@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   CheckCircle2,
   Eraser,
   Lightbulb,
   MapPin,
+  MoreHorizontal,
   Pencil,
   Redo2,
   Undo2,
@@ -33,6 +34,27 @@ export const ActionDock: React.FC<ActionDockProps> = ({
   onCheckClues,
   onRequestHint,
 }) => {
+  const [assistOpen, setAssistOpen] = useState(false);
+  const menuWrapRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!assistOpen) return;
+    const handlePointerDown = (e: PointerEvent) => {
+      if (menuWrapRef.current && !menuWrapRef.current.contains(e.target as Node)) {
+        setAssistOpen(false);
+      }
+    };
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setAssistOpen(false);
+    };
+    window.addEventListener('pointerdown', handlePointerDown);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('pointerdown', handlePointerDown);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [assistOpen]);
+
   return (
     <div className="action-dock" role="toolbar" aria-label="Drafting tools">
       <div className="mode-group">
@@ -83,40 +105,76 @@ export const ActionDock: React.FC<ActionDockProps> = ({
       <div className="utility-group">
         <button
           type="button"
-          className="dock-btn icon-square"
+          className="dock-btn icon-square undo-redo-btn"
           onClick={onUndo}
           disabled={!canUndo}
           aria-label="Undo"
           title="Undo"
         >
           <Undo2 size={15} />
+          <span className="mobile-btn-label">Undo</span>
         </button>
         <button
           type="button"
-          className="dock-btn icon-square"
+          className="dock-btn icon-square undo-redo-btn"
           onClick={onRedo}
           disabled={!canRedo}
           aria-label="Redo"
           title="Redo"
         >
           <Redo2 size={15} />
+          <span className="mobile-btn-label">Redo</span>
         </button>
-        <button
-          type="button"
-          className="dock-btn check-btn"
-          onClick={onCheckClues}
-        >
-          <CheckCircle2 size={15} />
-          <span>Check</span>
-        </button>
-        <button
-          type="button"
-          className="dock-btn hint-btn"
-          onClick={onRequestHint}
-        >
-          <Lightbulb size={15} />
-          <span>Hint</span>
-        </button>
+
+        <div className="assist-menu-wrap" ref={menuWrapRef}>
+          <button
+            type="button"
+            className={`dock-btn icon-square assist-trigger-btn ${assistOpen ? 'active' : ''}`}
+            onClick={() => setAssistOpen((open) => !open)}
+            aria-haspopup="menu"
+            aria-expanded={assistOpen}
+            aria-label="More tools"
+            title="More tools"
+          >
+            <MoreHorizontal size={15} />
+          </button>
+
+          {assistOpen && (
+            <div className="assist-menu" role="menu" aria-label="Case assistance">
+              <div className="assist-menu-kicker">CASE ASSISTANCE</div>
+              <button
+                type="button"
+                role="menuitem"
+                className="assist-menu-item"
+                onClick={() => {
+                  setAssistOpen(false);
+                  onCheckClues();
+                }}
+              >
+                <CheckCircle2 size={15} />
+                <span className="assist-menu-copy">
+                  <span className="assist-menu-title">Check Clues</span>
+                  <span className="assist-menu-sub">Verify placements so far</span>
+                </span>
+              </button>
+              <button
+                type="button"
+                role="menuitem"
+                className="assist-menu-item"
+                onClick={() => {
+                  setAssistOpen(false);
+                  onRequestHint();
+                }}
+              >
+                <Lightbulb size={15} />
+                <span className="assist-menu-copy">
+                  <span className="assist-menu-title">Get a Hint</span>
+                  <span className="assist-menu-sub">Reveal the next logical step</span>
+                </span>
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

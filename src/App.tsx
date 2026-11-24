@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Check } from 'lucide-react';
+import { Check, X } from 'lucide-react';
 import { getCuratedPuzzle, getNextCuratedCaseId } from './engine/curatedCases';
 import { generatePuzzle } from './engine/generator';
 import { createSeedCode, getDailySeed } from './engine/rng';
@@ -106,9 +106,6 @@ export const App: React.FC = () => {
   );
   const [activeClueId, setActiveClueId] = useState<string | null>(null);
 
-  const [elapsedSeconds, setElapsedSeconds] = useState<number>(
-    () => initialBoard?.elapsedSeconds ?? 0
-  );
   const [hintsUsed, setHintsUsed] = useState<number>(() => initialBoard?.hintsUsed ?? 0);
   const [solved, setSolved] = useState<boolean>(() => initialBoard?.solved ?? false);
 
@@ -129,13 +126,27 @@ export const App: React.FC = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
 
-  const [toastMsg, setToastMsg] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ msg: string; tone: 'info' | 'warn' } | null>(null);
   const toastTimerRef = useRef<number | null>(null);
 
-  const showToast = useCallback((msg: string) => {
-    setToastMsg(msg);
+  const dismissToast = useCallback(() => {
+    if (toastTimerRef.current !== null) {
+      window.clearTimeout(toastTimerRef.current);
+      toastTimerRef.current = null;
+    }
+    setToast(null);
+  }, []);
+
+  const showToast = useCallback((msg: string, tone: 'info' | 'warn' = 'info') => {
+    setToast({ msg, tone });
     if (toastTimerRef.current !== null) window.clearTimeout(toastTimerRef.current);
-    toastTimerRef.current = window.setTimeout(() => setToastMsg(null), 3200);
+    toastTimerRef.current = window.setTimeout(
+      () => {
+        toastTimerRef.current = null;
+        setToast(null);
+      },
+      tone === 'warn' ? 3400 : 2400
+    );
   }, []);
 
   // Persist current board automatically
@@ -149,20 +160,10 @@ export const App: React.FC = () => {
       crossouts: Array.from(crossouts),
       notes,
       checkedOwners: Array.from(checkedOwners),
-      elapsedSeconds,
       hintsUsed,
       solved,
     });
-  }, [puzzle, placements, crossouts, notes, checkedOwners, elapsedSeconds, hintsUsed, solved]);
-
-  // Timer tick (paused while solved or modal open)
-  useEffect(() => {
-    if (solved || showNewCase || showRules || showTrophies || showVictory) return;
-    const id = window.setInterval(() => {
-      setElapsedSeconds((s) => s + 1);
-    }, 1000);
-    return () => window.clearInterval(id);
-  }, [solved, showNewCase, showRules, showTrophies, showVictory]);
+  }, [puzzle, placements, crossouts, notes, checkedOwners, hintsUsed, solved]);
 
   const currentSnapshot = useCallback((): BoardSnapshot => {
     return cloneSnapshot({
@@ -302,7 +303,7 @@ export const App: React.FC = () => {
     const blocking = puzzle.grid[r][c].blocking;
     if (blocking !== null) {
       const info = OBJECT_INFO[blocking];
-      showToast(`${info.label} — Solid obstacle (suspects can stand beside it, not on it).`);
+      showToast(`${info.label} — Solid obstacle (suspects can stand beside it, not on it).`, 'warn');
       return;
     }
     setMode('place');
@@ -393,7 +394,7 @@ export const App: React.FC = () => {
   const handleCheckClues = () => {
     const res = checkPlayerPlacements(puzzle, placements);
     setViolatedClueIds(new Set(res.violatedClueIds));
-    showToast(res.message);
+    showToast(res.message, res.validSoFar ? 'info' : 'warn');
     if (!res.validSoFar) playWarningSound(settings.soundEnabled);
     else playPlaceSound(settings.soundEnabled);
   };
@@ -511,7 +512,7 @@ export const App: React.FC = () => {
     const check = checkPlayerPlacements(puzzle, placements);
     if (!check.validSoFar) {
       setViolatedClueIds(new Set(check.violatedClueIds));
-      showToast(check.message);
+      showToast(check.message, 'warn');
       playWarningSound(settings.soundEnabled);
       return;
     }
@@ -520,7 +521,8 @@ export const App: React.FC = () => {
       const accused = puzzle.people.find((p) => p.id === suspectId);
       const victim = puzzle.people.find((p) => p.isVictim);
       showToast(
-        `${accused?.name ?? 'That suspect'} wasn't alone with ${victim?.name ?? 'the victim'}! Double-check the room.`
+        `${accused?.name ?? 'That suspect'} wasn't alone with ${victim?.name ?? 'the victim'}! Double-check the room.`,
+        'warn'
       );
       playWarningSound(settings.soundEnabled);
       return;
@@ -528,12 +530,7 @@ export const App: React.FC = () => {
 
     // Verified victory!
     if (!solved) {
-      const nextStats = recordSolve(
-        puzzle.difficulty,
-        elapsedSeconds,
-        puzzle.curatedId,
-        hintsUsed
-      );
+      const nextStats = recordSolve(puzzle.difficulty, puzzle.curatedId, hintsUsed);
       setStats(nextStats);
       setSolved(true);
     }
@@ -554,7 +551,6 @@ export const App: React.FC = () => {
     setHintStepOffset(0);
     setIsMapKeyOpen(false);
     setLegendHighlightKind(null);
-    setElapsedSeconds(0);
     setHintsUsed(0);
     setSolved(false);
     setActivePersonId(nextPuzzle.people[0]?.id ?? null);
@@ -592,7 +588,6 @@ export const App: React.FC = () => {
     setViolatedClueIds(new Set());
     setLiveHint(null);
     setHintStepOffset(0);
-    setElapsedSeconds(0);
     setHintsUsed(0);
     setSolved(false);
     setShowSettings(false);
@@ -620,7 +615,6 @@ export const App: React.FC = () => {
       else if (k === '2') setMode('note');
       else if (k === '3') setMode('cross');
       else if (k === '4') setMode('erase');
-      else if (k === 'h') handleRequestHint();
       else {
         const matched = puzzle.people.find((p) => p.letter.toLowerCase() === k);
         if (matched) selectPersonAndScroll(matched.id);
@@ -635,7 +629,6 @@ export const App: React.FC = () => {
     showVictory,
     handleUndo,
     handleRedo,
-    handleRequestHint,
     puzzle.people,
     selectPersonAndScroll,
   ]);
@@ -700,7 +693,6 @@ export const App: React.FC = () => {
       <div className="app-shell" data-venue={puzzle.themeId}>
         <HeaderBar
           puzzle={puzzle}
-          elapsedSeconds={elapsedSeconds}
           totalSolved={stats.totalSolved}
           onOpenNewCase={() => setShowNewCase(true)}
           onOpenRules={() => setShowRules(true)}
@@ -819,12 +811,6 @@ export const App: React.FC = () => {
                     setLegendHighlightKind(null);
                   }}
                 />
-              )}
-
-              {toastMsg && (
-                <div className="board-toast" role="status">
-                  {toastMsg}
-                </div>
               )}
             </div>
 
@@ -960,6 +946,28 @@ export const App: React.FC = () => {
             onAccuseSuspect={handleAccuseSuspect}
           />
         </main>
+
+        {toast && (
+          <div
+            className={`app-toast ${toast.tone === 'warn' ? 'is-warn' : ''}`}
+            role="status"
+            aria-live="polite"
+            onClick={dismissToast}
+          >
+            <span className="app-toast-text">{toast.msg}</span>
+            <button
+              type="button"
+              className="app-toast-close"
+              onClick={(e) => {
+                e.stopPropagation();
+                dismissToast();
+              }}
+              aria-label="Dismiss message"
+            >
+              <X size={13} />
+            </button>
+          </div>
+        )}
       </div>
 
       <PrintSheet puzzle={puzzle} includeKey={settings.printIncludeKey} />
@@ -990,7 +998,6 @@ export const App: React.FC = () => {
       {showVictory && (
         <VictoryModal
           puzzle={puzzle}
-          elapsedSeconds={elapsedSeconds}
           hintsUsed={hintsUsed}
           stats={stats}
           nextCuratedNumber={

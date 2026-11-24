@@ -9,14 +9,14 @@ export interface AppSettings {
 }
 
 export interface CuratedSolveRecord {
-  bestTime: number;
+  bestTime?: number;
   hintsUsed: number;
 }
 
 export interface SolvedStats {
   totalSolved: number;
   byDifficulty: Record<Difficulty, number>;
-  bestTimes: Partial<Record<Difficulty, number>>;
+  bestTimes?: Partial<Record<Difficulty, number>>;
   solvedCurated: Record<string, CuratedSolveRecord>;
 }
 
@@ -29,7 +29,7 @@ export interface SavedBoardState {
   crossouts: string[];
   notes: Record<string, string[]>;
   checkedOwners: string[];
-  elapsedSeconds: number;
+  elapsedSeconds?: number;
   hintsUsed: number;
   solved: boolean;
 }
@@ -55,7 +55,6 @@ export const DEFAULT_STATS: SolvedStats = {
     hard: 0,
     expert: 0,
   },
-  bestTimes: {},
   solvedCurated: {},
 };
 
@@ -85,7 +84,6 @@ export function loadStats(): SolvedStats {
     return {
       totalSolved: parsed.totalSolved ?? 0,
       byDifficulty: { ...DEFAULT_STATS.byDifficulty, ...(parsed.byDifficulty ?? {}) },
-      bestTimes: parsed.bestTimes ?? {},
       solvedCurated: parsed.solvedCurated ?? {},
     };
   } catch {
@@ -95,17 +93,14 @@ export function loadStats(): SolvedStats {
 
 export function recordSolve(
   difficulty: Difficulty,
-  elapsedSeconds: number,
   curatedId?: string,
   hintsUsed = 0
 ): SolvedStats {
   const cur = loadStats();
-  const prevBest = cur.bestTimes[difficulty];
   const nextCurated = { ...(cur.solvedCurated ?? {}) };
   if (curatedId) {
     const prevRec = nextCurated[curatedId];
     nextCurated[curatedId] = {
-      bestTime: prevRec ? Math.min(prevRec.bestTime, elapsedSeconds) : elapsedSeconds,
       hintsUsed: prevRec ? Math.min(prevRec.hintsUsed, hintsUsed) : hintsUsed,
     };
   }
@@ -114,10 +109,6 @@ export function recordSolve(
     byDifficulty: {
       ...cur.byDifficulty,
       [difficulty]: (cur.byDifficulty[difficulty] ?? 0) + 1,
-    },
-    bestTimes: {
-      ...cur.bestTimes,
-      [difficulty]: prevBest === undefined ? elapsedSeconds : Math.min(prevBest, elapsedSeconds),
     },
     solvedCurated: nextCurated,
   };

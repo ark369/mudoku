@@ -2,7 +2,6 @@ import React from 'react';
 import {
   BookMarked,
   BookOpen,
-  Clock,
   Copy,
   Printer,
   Settings,
@@ -13,7 +12,6 @@ import { MYSTERY_THEMES } from '../engine/themes';
 
 interface HeaderBarProps {
   puzzle: Puzzle;
-  elapsedSeconds: number;
   totalSolved: number;
   onOpenNewCase: () => void;
   onOpenRules: () => void;
@@ -23,15 +21,8 @@ interface HeaderBarProps {
   onCopySeed: () => void;
 }
 
-export function formatTime(sec: number): string {
-  const m = Math.floor(sec / 60);
-  const s = sec % 60;
-  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-}
-
 export const HeaderBar: React.FC<HeaderBarProps> = ({
   puzzle,
-  elapsedSeconds,
   totalSolved,
   onOpenNewCase,
   onOpenRules,
@@ -74,11 +65,6 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
           </span>
           <Copy size={11} />
         </button>
-
-        <span className="folio-timer" aria-label="Elapsed time">
-          <Clock size={13} />
-          {formatTime(elapsedSeconds)}
-        </span>
       </div>
 
       <nav className="folio-nav" aria-label="Folio controls">
